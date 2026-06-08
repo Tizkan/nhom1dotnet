@@ -1,11 +1,9 @@
-// ===== EMAILJS CONFIG =====
 const EMAILJS_PUBLIC_KEY  = "c2mCh8VYFr_l9mdmy";
 const EMAILJS_SERVICE_ID  = "service_cjsueiu";
 const EMAILJS_TEMPLATE_ID = "template_sb53noo";
 
 emailjs.init(EMAILJS_PUBLIC_KEY);
 
-// ===== OTP STATE =====
 let addOtpCode = "";
 let addEmailVerified = false;
 
@@ -13,12 +11,10 @@ let editOtpCode = "";
 let editEmailVerified = false;
 let editOriginalEmail = "";
 
-// ===== GENERATE OTP =====
 function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// ===== SEND OTP (ADD) =====
 async function sendOtp() {
     const email = document.getElementById("add_email").value.trim();
     if (!email || !email.includes("@")) {
@@ -49,7 +45,6 @@ async function sendOtp() {
     }
 }
 
-// ===== SEND OTP (EDIT) =====
 async function sendEditOtp() {
     const email = document.getElementById("edit_email").value.trim();
     if (!email || !email.includes("@")) {
@@ -80,9 +75,8 @@ async function sendEditOtp() {
     }
 }
 
-// ===== OTP TIMER =====
 function startOtpTimer(btn, mode) {
-    let seconds = 60;
+    let seconds = 120;
     const interval = setInterval(() => {
         seconds--;
         btn.textContent = "Gửi lại (" + seconds + "s)";
@@ -96,7 +90,6 @@ function startOtpTimer(btn, mode) {
     }, 1000);
 }
 
-// ===== VERIFY OTP INLINE =====
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("add_otp").addEventListener("input", function () {
         if (this.value.trim() === addOtpCode && addOtpCode !== "") {
@@ -112,7 +105,6 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("editVerifiedGroup").style.display = "block";
         }
     });
-    // Close modal on overlay click
     document.querySelectorAll(".modal-overlay").forEach(function (overlay) {
         overlay.addEventListener("click", function (e) {
             if (e.target === overlay) overlay.classList.remove("active");
@@ -120,7 +112,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// ===== MODAL HELPERS =====
 function openAddModal() {
     addOtpCode = ""; addEmailVerified = false;
     document.getElementById("add_fullname").value  = "";
@@ -164,7 +155,6 @@ function closeModal(id) {
     document.getElementById(id).classList.remove("active");
 }
 
-// ===== SUBMIT ADD =====
 function submitAdd() {
     const fullname   = document.getElementById("add_fullname").value.trim();
     const email      = document.getElementById("add_email").value.trim();
@@ -185,7 +175,6 @@ function submitAdd() {
     form.submit();
 }
 
-// ===== SUBMIT EDIT =====
 function submitEdit() {
     const id        = document.getElementById("edit_id").value;
     const fullname  = document.getElementById("edit_fullname").value.trim();
@@ -207,14 +196,12 @@ function submitEdit() {
     form.submit();
 }
 
-// ===== SUBMIT DELETE =====
 function submitDelete() {
     const id = document.getElementById("delete_id").value;
     const form = createHiddenForm("/Staff/Index?handler=Delete", { id });
     form.submit();
 }
 
-// ===== HELPER: hidden form with CSRF =====
 function createHiddenForm(action, fields) {
     const form = document.createElement("form");
     form.method = "POST";

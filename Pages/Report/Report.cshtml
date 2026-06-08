@@ -17,7 +17,7 @@
     double occDelta  = Math.Round(Model.OccupancyRate - Model.OccupancyLast, 1);
     double stayDelta = Math.Round(Model.AvgStayNights - Model.AvgStayLast,   1);
 
-    // Dữ liệu JSON cho Chart.js (truyền qua data-* để tách JS riêng)
+    // Dữ liệu JSON cho Chart.js
     var labels    = System.Text.Json.JsonSerializer.Serialize(Model.MonthlyStats.Select(m => m.Label));
     var revData   = System.Text.Json.JsonSerializer.Serialize(Model.MonthlyStats.Select(m => m.Revenue));
     var cntData   = System.Text.Json.JsonSerializer.Serialize(Model.MonthlyStats.Select(m => m.Count));
@@ -29,7 +29,7 @@
 
 <h1 class="page-title">Báo cáo &amp; Phân tích</h1>
 
-<!-- ── KPI Cards ── -->
+<!--KPI -->
 <div class="kpi-grid">
 
     <div class="kpi-card">
@@ -98,7 +98,7 @@
 <div class="bottom-row">
 
     <div class="chart-card">
-        <h3>Top 5 khách hàng VIP</h3>
+        <h3>Top 5 khách hàng </h3>
         @{ int rank = 0; }
         @foreach (var c in Model.TopCustomers)
         {

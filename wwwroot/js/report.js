@@ -1,8 +1,4 @@
-// report.js — Chart.js cho trang Báo cáo
-// Dữ liệu được truyền qua data-* attributes của thẻ <script> này
-
 (function () {
-    // Lấy dữ liệu từ data-* của chính thẻ script này
     const el = document.currentScript;
 
     const labels    = JSON.parse(el.dataset.labels    || '[]');
@@ -11,7 +7,7 @@
     const pieLabels = JSON.parse(el.dataset.pieLabels || '[]');
     const pieData   = JSON.parse(el.dataset.pie       || '[]');
 
-    // ── Bar chart: Doanh thu 6 tháng ──────────────────────────
+    // ── Bar chart: Doanh thu 6 tháng 
     const barCanvas = document.getElementById('barChart');
     if (barCanvas) {
         new Chart(barCanvas, {
@@ -54,7 +50,14 @@
                     y2: {
                         position: 'right',
                         grid: { drawOnChartArea: false },
-                        ticks: { color: '#64748b' }
+                        ticks: {
+                            color: '#64748b',
+                            // fix số phòng
+                            stepSize: 1,
+                            callback: function (value) {
+                                return Number.isInteger(value) ? value : null;
+                            }
+                        }
                     },
                     x: {
                         grid: { display: false },
@@ -65,7 +68,7 @@
         });
     }
 
-    // ── Pie chart: Phân bổ loại phòng ─────────────────────────
+    // ── Pie chart: Phân bổ loại phòng
     const pieCanvas = document.getElementById('pieChart');
     if (pieCanvas) {
         new Chart(pieCanvas, {

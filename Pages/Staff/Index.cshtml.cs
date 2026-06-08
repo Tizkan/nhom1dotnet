@@ -19,7 +19,6 @@ namespace nhom1dotnet.Pages_Staff
         public string      SuccessMessage { get; set; } = "";
         public string      ErrorMessage   { get; set; } = "";
 
-        // ── GET ───────────────────────────────────────────────
         public async Task OnGetAsync(string? msg, string? err)
         {
             SuccessMessage = msg ?? "";
@@ -37,7 +36,6 @@ namespace nhom1dotnet.Pages_Staff
             TotalStaff = Staffs.Count;
         }
 
-        // ── POST: Add ─────────────────────────────────────────
         public async Task<IActionResult> OnPostAddAsync(
             string fullname, string email, string? birthdate, string? citizenid)
         {
@@ -65,7 +63,6 @@ namespace nhom1dotnet.Pages_Staff
             return RedirectToPage(new { msg = $"Đã thêm nhân viên \"{fullname}\" thành công." });
         }
 
-        // ── POST: Edit ────────────────────────────────────────
         public async Task<IActionResult> OnPostEditAsync(
             int id, string fullname, string email, string? birthdate, string? citizenid)
         {
@@ -90,7 +87,6 @@ namespace nhom1dotnet.Pages_Staff
             return RedirectToPage(new { msg = $"Đã cập nhật nhân viên \"{fullname}\" thành công." });
         }
 
-        // ── POST: Delete ──────────────────────────────────────
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             var staff = await _db.Staffs.FindAsync(id);
