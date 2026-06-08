@@ -1,0 +1,149 @@
+@page
+@model nhom1dotnet.Pages.Report.ReportModel
+
+@{
+    ViewData["Title"] = "Báo cáo";
+
+    // Tỉ lệ % loại phòng
+    int total     = Model.BookingStandard + Model.BookingDeluxe + Model.BookingSuite;
+    double pctStd = total > 0 ? Math.Round((double)Model.BookingStandard / total * 100) : 0;
+    double pctDlx = total > 0 ? Math.Round((double)Model.BookingDeluxe   / total * 100) : 0;
+    double pctSui = total > 0 ? Math.Round((double)Model.BookingSuite    / total * 100) : 0;
+
+    // Delta so tháng trước
+    decimal revDelta = Model.RevenueLastMonth > 0
+        ? Math.Round((Model.RevenueThisMonth - Model.RevenueLastMonth) / Model.RevenueLastMonth * 100, 1)
+        : 0;
+    double occDelta  = Math.Round(Model.OccupancyRate - Model.OccupancyLast, 1);
+    double stayDelta = Math.Round(Model.AvgStayNights - Model.AvgStayLast,   1);
+
+    // Dữ liệu JSON cho Chart.js (truyền qua data-* để tách JS riêng)
+    var labels    = System.Text.Json.JsonSerializer.Serialize(Model.MonthlyStats.Select(m => m.Label));
+    var revData   = System.Text.Json.JsonSerializer.Serialize(Model.MonthlyStats.Select(m => m.Revenue));
+    var cntData   = System.Text.Json.JsonSerializer.Serialize(Model.MonthlyStats.Select(m => m.Count));
+    var pieLabels = System.Text.Json.JsonSerializer.Serialize(new[] { $"Standard {pctStd}%", $"Deluxe {pctDlx}%", $"Suite {pctSui}%" });
+    var pieData   = System.Text.Json.JsonSerializer.Serialize(new[] { Model.BookingStandard, Model.BookingDeluxe, Model.BookingSuite });
+}
+
+<link rel="stylesheet" href="~/css/report.css" />
+
+<h1 class="page-title">Báo cáo &amp; Phân tích</h1>
+
+<!-- ── KPI Cards ── -->
+<div class="kpi-grid">
+
+    <div class="kpi-card">
+        <div class="kpi-label">Doanh thu tháng này</div>
+        <div class="kpi-value">
+            @if (Model.RevenueThisMonth >= 1_000_000)
+            { <text>&#8363;@((Model.RevenueThisMonth / 1_000_000).ToString("N0"))M</text> }
+            else
+            { <text>&#8363;@Model.RevenueThisMonth.ToString("N0")</text> }
+        </div>
+        <div class="kpi-delta @(revDelta >= 0 ? "up" : "down")">
+            <i class="fa-solid @(revDelta >= 0 ? "fa-arrow-trend-up" : "fa-arrow-trend-down")"></i>
+            @(revDelta >= 0 ? "+" : "")@revDelta% vs tháng trước
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-label">Tỷ lệ lấp đầy TB</div>
+        <div class="kpi-value">@Model.OccupancyRate%</div>
+        <div class="kpi-delta @(occDelta >= 0 ? "up" : "down")">
+            <i class="fa-solid @(occDelta >= 0 ? "fa-arrow-trend-up" : "fa-arrow-trend-down")"></i>
+            @(occDelta >= 0 ? "+" : "")@occDelta% vs tháng trước
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-label">Thời gian ở TB</div>
+        <div class="kpi-value">@Model.AvgStayNights đêm</div>
+        <div class="kpi-delta @(stayDelta >= 0 ? "up" : "down")">
+            <i class="fa-solid @(stayDelta >= 0 ? "fa-arrow-trend-up" : "fa-arrow-trend-down")"></i>
+            @(stayDelta >= 0 ? "+" : "")@stayDelta vs tháng trước
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-label">Đánh giá TB</div>
+        <div class="kpi-value">4.6/5</div>
+        <div class="kpi-delta down">
+            <i class="fa-solid fa-arrow-trend-down"></i>
+            -0.1 vs tháng trước
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Biểu đồ ── -->
+<div class="chart-row">
+
+    <div class="chart-card">
+        <h3>Doanh thu 6 tháng gần nhất</h3>
+        <div class="chart-wrap">
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Phân bổ loại phòng đã đặt</h3>
+        <div class="chart-wrap">
+            <canvas id="pieChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Bottom ── -->
+<div class="bottom-row">
+
+    <div class="chart-card">
+        <h3>Top 5 khách hàng VIP</h3>
+        @{ int rank = 0; }
+        @foreach (var c in Model.TopCustomers)
+        {
+            rank++;
+            string cls = rank == 1 ? "gold" : rank == 2 ? "silver" : rank == 3 ? "bronze" : "";
+            <div class="vip-item">
+                <div class="vip-rank @cls">@rank</div>
+                <div class="vip-name">
+                    <strong>@c.Name</strong>
+                    <span>@c.BookingCount lần đặt</span>
+                </div>
+                <div class="vip-amount">&#8363;@c.TotalSpent.ToString("N0")</div>
+            </div>
+        }
+        @if (!Model.TopCustomers.Any())
+        {
+            <p style="color:#64748b; text-align:center; padding:2rem 0">Chưa có dữ liệu</p>
+        }
+    </div>
+
+    <div class="chart-card">
+        <h3>Nguồn đặt phòng</h3>
+        @foreach (var s in Model.Sources)
+        {
+            <div class="source-item">
+                <div class="source-header">
+                    <span class="source-name">@s.Name</span>
+                    <span class="source-meta">@s.Count đơn (@s.Percent%)</span>
+                </div>
+                <div class="source-bar-bg">
+                    <div class="source-bar-fill" style="width: @s.Percent%"></div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="~/js/report.js"
+            data-labels='@Html.Raw(labels)'
+            data-rev='@Html.Raw(revData)'
+            data-cnt='@Html.Raw(cntData)'
+            data-pie-labels='@Html.Raw(pieLabels)'
+            data-pie='@Html.Raw(pieData)'>
+    </script>
+}

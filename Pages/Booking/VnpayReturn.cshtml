@@ -1,0 +1,18 @@
+@page
+@model nhom1dotnet.Pages.Booking.VnpayReturnModel
+@{
+    ViewData["Title"] = "Kết quả thanh toán";
+}
+
+<div style="text-align:center; margin-top: 50px;">
+    @if (Model.IsSuccess)
+    {
+        <h2 style="color:green">✅ @Model.Message</h2>
+    }
+    else
+    {
+        <h2 style="color:red">❌ @Model.Message</h2>
+    }
+    <br/>
+    <a href="/Booking/Booking">Quay lại danh sách đặt phòng</a>
+</div>

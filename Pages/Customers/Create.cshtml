@@ -1,0 +1,59 @@
+@page
+@model nhom1dotnet.Pages_Customers.CreateModel
+
+        @{
+        ViewData["Title"] = "Create";
+        }
+
+<link rel="stylesheet" href="~/css/create.css" asp-append-version="true" />
+
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fa-solid fa-plus"></i> Tạo khách hàng
+    </h1>
+    <a class="btn-back" asp-page="/Customers/Index">Quay lại</a>
+</div>
+
+<form method="post" class="form-card">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="Customer.full_name">Họ và tên</label>
+        <input asp-for="Customer.full_name" />
+        <span asp-validation-for="Customer.full_name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Customer.phone">Số điện thoại</label>
+        <input asp-for="Customer.phone" />
+        <span asp-validation-for="Customer.phone" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Customer.email">Email</label>
+        <input asp-for="Customer.email" />
+        <span asp-validation-for="Customer.email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Customer.address">Địa chỉ</label>
+        <input asp-for="Customer.address" />
+        <span asp-validation-for="Customer.address" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Customer.citizen_id">CMND/CCCD</label>
+        <input asp-for="Customer.citizen_id" />
+        <span asp-validation-for="Customer.citizen_id" class="text-danger"></span>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn-save">Tạo</button>
+        <a asp-page="Index" class="btn-cancel">Hủy</a>
+    </div>
+
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

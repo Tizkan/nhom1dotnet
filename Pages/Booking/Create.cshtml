@@ -1,0 +1,62 @@
+@page
+@model nhom1dotnet.Pages.Booking.CreateModel
+
+@{
+    ViewData["Title"] = "Tạo đặt phòng";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="~/css/create.css" asp-append-version="true" />
+
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fa-solid fa-plus"></i> Tạo đặt phòng mới
+    </h1>
+    <a class="btn-back" asp-page="/Booking/Booking">
+        <i class="fa-solid fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<form method="post" class="form-card">
+
+    <div class="form-group">
+        <label>Khách hàng</label>
+        <select asp-for="Booking.customer_id">
+            <option value="">-- Chọn khách hàng --</option>
+            @foreach (var c in Model.Customers)
+            {
+                <option value="@c.id">@c.full_name</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Phòng</label>
+        <select asp-for="Booking.room_id">
+            <option value="">-- Chọn phòng --</option>
+            @foreach (var r in Model.Rooms)
+            {
+                <option value="@r.id">Phòng @r.room_number (Tầng @r.floor_number) - @r.status</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Check-in</label>
+        <input asp-for="Booking.check_in" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label>Check-out</label>
+        <input asp-for="Booking.check_out" type="date" />
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn-save">
+            <i class="fa-solid fa-check"></i> Lưu
+        </button>
+        <a asp-page="/Booking/Booking" class="btn-cancel">
+            <i class="fa-solid fa-times"></i> Hủy
+        </a>
+    </div>
+
+</form>

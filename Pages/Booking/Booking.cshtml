@@ -1,0 +1,169 @@
+﻿@page
+@Html.AntiForgeryToken()
+@model nhom1dotnet.Pages.Booking.BookingModel
+
+@{
+    ViewData["Title"] = "Đặt phòng";
+}
+<link rel="stylesheet" href="~/css/booking.css" asp-append-version="true" />
+<h1 class="page-title">
+    Đặt phòng
+</h1>
+<form method="post" id="antiForgeryForm">
+    @Html.AntiForgeryToken()
+</form>
+<div class="booking-header">
+    <a class="btn-create" asp-page="/Booking/Create">
+        <i class="fa-solid fa-plus"></i>
+        Tạo đặt phòng mới
+    </a>
+</div>
+
+<div class="booking-stats">
+
+    <div class="stat-card total">
+        <div class="stat-title">Tổng đặt phòng</div>
+        <div class="stat-number">
+            @Model.Bookings.Count()
+        </div>
+    </div>
+
+    <div class="stat-card pending">
+        <div class="stat-title">Chờ xác nhận</div>
+        <div class="stat-number">
+            @Model.Bookings.Count(b => b.status == "Chờ xác nhận")
+        </div>
+    </div>
+
+    <div class="stat-card confirmed">
+        <div class="stat-title">Đã xác nhận</div>
+        <div class="stat-number">
+            @Model.Bookings.Count(b => b.status == "Đã xác nhận")
+        </div>
+    </div>
+
+    <div class="stat-card staying">
+        <div class="stat-title">Đang ở</div>
+        <div class="stat-number">
+            @Model.Bookings.Count(b => b.status == "Đã Check-in")
+        </div>
+    </div>
+
+</div>
+
+<table class="booking-table">
+
+    <thead>
+        <tr>
+            <th></th>
+
+            <th>Mã đặt</th>
+            <th>Khách hàng</th>
+            <th>Phòng</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Số đêm</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var booking in Model.Bookings)
+        {
+            var nights = (booking.check_out - booking.check_in).Days;
+
+            <tr>
+
+                <td>
+
+                    @if (booking.status == "Chờ xác nhận")
+                    {
+                        <input type="checkbox" class="booking-checkbox" value="@booking.id" />
+                    }
+
+                </td>
+
+                <td>#@booking.id</td>
+
+                <td>@booking.Customer?.full_name</td>
+
+                <td>@(booking.Room?.room_number ?? "N/A")</td>
+
+                <td>@booking.check_in.ToString("dd/MM/yyyy")</td>
+
+                <td>@booking.check_out.ToString("dd/MM/yyyy")</td>
+
+                <td>@nights đêm</td>
+
+                <td>
+                    @booking.total_amount?.ToString("N0") ₫
+                </td>
+
+                <td>
+                    <span
+                        class="status 
+                        @(booking.status == "Đã xác nhận" ? "confirmed" : booking.status == "Chờ xác nhận" ? "pending" : "checkedin")">
+
+                        @booking.status
+                    </span>
+                </td>
+
+                <td>
+
+                    <a asp-page="/Booking/Edit" asp-route-id="@booking.id" class="btn-edit">
+                        Sửa
+                    </a>
+
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@booking.id" style="display:inline">
+
+                        <button type="submit" class="btn-delete" onclick="return confirm('Bạn có chắc muốn xóa không?')">
+
+                            Xóa
+
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+        }
+
+    </tbody>
+
+</table>
+<div class="payment-container">
+
+    <form method="post" asp-page-handler="Pay" id="payForm">
+        <input type="hidden" name="id" id="selectedBookingId" value="" />
+        <button id="btnPayment" class="btn-payment" disabled>
+            Thanh toán
+        </button>
+    </form>
+
+</div>
+@section Scripts {
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const btn = document.getElementById("btnPayment");
+            const hiddenId = document.getElementById("selectedBookingId");
+
+            document.addEventListener("change", function () {
+                const checked = document.querySelectorAll(".booking-checkbox:checked");
+                btn.disabled = checked.length === 0;
+
+                if (checked.length > 0) {
+                    hiddenId.value = checked[checked.length - 1].value; // lấy booking id
+                } else {
+                    hiddenId.value = "";
+                }
+            });
+        });
+    </script>
+
+}

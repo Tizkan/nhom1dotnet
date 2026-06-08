@@ -1,0 +1,62 @@
+﻿@page
+@model nhom1dotnet.Pages.SettingsModel
+
+@{
+    ViewData["Title"] = "Cài đặt";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="~/css/settings.css" asp-append-version="true" />
+
+<h1 class="page-title">
+    <i class="fa-solid fa-gear"></i> Cài đặt hệ thống
+</h1>
+
+<div class="settings-grid">
+
+    <div class="settings-card">
+        <div class="settings-icon account">
+            <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="settings-content">
+            <h3>Thông tin tài khoản</h3>
+            <p>Tên đăng nhập: <strong>admin</strong></p>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <div class="settings-icon theme">
+            <i class="fa-solid fa-palette"></i>
+        </div>
+        <div class="settings-content">
+            <h3>Giao diện</h3>
+            <a class="btn-setting" href="#">
+                <i class="fa-solid fa-sliders"></i> Đổi màu giao diện
+            </a>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <div class="settings-icon security">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <div class="settings-content">
+            <h3>Bảo mật</h3>
+            <a class="btn-setting" href="#">
+                <i class="fa-solid fa-key"></i> Đổi mật khẩu
+            </a>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <div class="settings-icon logout">
+            <i class="fa-solid fa-sign-out-alt"></i>
+        </div>
+        <div class="settings-content">
+            <h3>Đăng xuất</h3>
+            <a class="btn-setting btn-logout" asp-page="/Logout/Logout">
+                <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+            </a>
+        </div>
+    </div>
+
+</div>

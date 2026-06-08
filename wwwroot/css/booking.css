@@ -1,0 +1,318 @@
+/* booking.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #f4f5f7;
+  font-family: "Segoe UI", sans-serif;
+  color: #222;
+}
+
+.page-title {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #111;
+}
+
+/* TABLE */
+
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.booking-table thead {
+  background: #f8f9fb;
+}
+
+.booking-table thead th {
+  padding: 22px 18px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  border-bottom: 1px solid #ececec;
+}
+
+.booking-table tbody tr {
+  transition: 0.2s ease;
+}
+
+.booking-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.booking-table tbody td {
+  padding: 26px 18px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 17px;
+  vertical-align: middle;
+}
+
+.booking-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* STATUS */
+
+.status {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* đã xác nhận */
+.status.confirmed {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* chờ xác nhận */
+.status.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* đã check-in */
+.status.checkedin {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* BUTTONS */
+
+.btn-edit,
+.btn-delete,
+.btn-default {
+  border: none;
+  outline: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-edit {
+  background: #2563eb;
+  color: white;
+  margin-right: 10px;
+  text-decoration: none;
+}
+
+.btn-edit:hover {
+  background: #1d4ed8;
+}
+
+.btn-delete,.btn-default {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+}
+
+.btn-default:hover {
+  background: #dc2626;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 992px) {
+  .booking-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .page-title {
+    font-size: 32px;
+  }
+}
+/* STATS */
+
+.booking-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.stat-title {
+  font-size: 16px;
+  color: #6b7280;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.stat-number {
+  font-size: 42px;
+  font-weight: 700;
+}
+
+/* màu từng card */
+
+.stat-card.total {
+  border-left: 6px solid #2563eb;
+}
+
+.stat-card.pending {
+  border-left: 6px solid #f59e0b;
+}
+
+.stat-card.confirmed {
+  border-left: 6px solid #16a34a;
+}
+
+.stat-card.staying {
+  border-left: 6px solid #7c3aed;
+}
+
+/* responsive */
+
+@media (max-width: 992px) {
+  .booking-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .booking-stats {
+    grid-template-columns: 1fr;
+  }
+}
+/* HEADER */
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 80%;
+  margin-bottom: 28px;
+}
+
+.page-title {
+  font-size: 42px;
+  font-weight: 700;
+  color: #111;
+}
+
+/* CREATE BUTTON */
+
+.btn-create {
+  background: #2563eb;
+  color: white;
+  text-decoration: none;
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: 0.2s ease;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+.btn-create:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.payment-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.btn-payment {
+    background: #9ca3af; /* màu xám khi bị khóa */
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: not-allowed;
+    transition: 0.2s ease;
+    opacity: 0.6;
+}
+
+/* trạng thái khi được enable */
+.btn-payment:enabled {
+    background: #2563eb;
+    cursor: pointer;
+    opacity: 1;
+    transition: 0.2s ease;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+.btn-payment:enabled:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+}
+
+
+.booking-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  appearance: none;
+  border: 2px solid #000000;
+  border-radius: 50%;
+  position: relative;
+}
+
+.booking-checkbox:checked::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: #2563eb;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+}
+
+@keyframes bounceSuccess {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInText {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

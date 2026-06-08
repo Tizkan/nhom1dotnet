@@ -1,0 +1,222 @@
+/* Styles for Customers/Index page */
+
+.customer-dashboard {
+    display: grid;
+    gap: 24px;
+    padding: 0 20px;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-create-customer {
+    padding: 12px 22px;
+    font-weight: 600;
+    border-radius: 999px;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.search-panel {
+    background: white;
+    border-radius: 20px;
+    padding: 18px 24px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.search-input {
+    flex: 1 1 320px;
+    min-width: 0;
+    padding: 16px 20px;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.btn-search {
+    background: #2563eb;
+    border: 1px solid transparent;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 16px;
+    transition: background 0.2s ease;
+}
+
+.btn-search:hover {
+    background: #1d4ed8;
+}
+
+.customer-table-wrapper {
+    background: white;
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+}
+
+.customer-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 14px;
+}
+
+.customer-table thead th {
+    border-bottom: none;
+    color: #6b7280;
+    font-weight: 700;
+    padding-bottom: 16px;
+    text-align: left;
+}
+
+.customer-table tbody tr {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.customer-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+.customer-table td {
+    vertical-align: middle;
+    border: none;
+    padding: 20px 12px;
+}
+
+.customer-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.customer-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.customer-name {
+    font-weight: 700;
+    color: #111827;
+}
+
+.contact-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: #4b5563;
+}
+
+.contact-phone {
+    font-weight: 600;
+    color: #111827;
+}
+
+.contact-email {
+    font-size: 0.95rem;
+}
+
+.booking-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.total-spent {
+    color: #111827;
+    font-weight: 700;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.action-link.view {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.action-link.edit {
+    background: #dcfce7;
+    color: #15803d;
+}
+.action-link.delete {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+@media (max-width: 1200px) {
+    .customer-table td,
+    .customer-table thead th {
+        padding: 16px 10px;
+    }
+}
+
+@media (max-width: 900px) {
+    .customer-table thead {
+        display: none;
+    }
+
+    .customer-table tbody tr {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .customer-table td {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+    }
+
+    .customer-table td:nth-child(1)::before { content: "Khách hàng"; font-weight: 700; color: #6b7280; }
+    .customer-table td:nth-child(2)::before { content: "Liên hệ"; font-weight: 700; color: #6b7280; }
+    .customer-table td:nth-child(3)::before { content: "CMND/CCCD"; font-weight: 700; color: #6b7280; }
+    .customer-table td:nth-child(4)::before { content: "Số lần đặt"; font-weight: 700; color: #6b7280; }
+    .customer-table td:nth-child(5)::before { content: "Tổng chi tiêu"; font-weight: 700; color: #6b7280; }
+    .customer-table td:nth-child(6)::before { content: "Lần cuối"; font-weight: 700; color: #6b7280; }
+    .customer-table td:nth-child(7)::before { content: "Thao tác"; font-weight: 700; color: #6b7280; }
+}

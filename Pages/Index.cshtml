@@ -1,0 +1,60 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Tổng quan";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
+
+<h1 class="page-title">
+    <i class="fa-solid fa-chart-line"></i> Tổng quan hệ thống
+</h1>
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fa-solid fa-bed"></i>
+        </div>
+        <div class="stat-content">
+            <p class="stat-label">Tổng phòng</p>
+            <h3 class="stat-value">120</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div class="stat-content">
+            <p class="stat-label">Booking hôm nay</p>
+            <h3 class="stat-value">32</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="stat-content">
+            <p class="stat-label">Khách hàng</p>
+            <h3 class="stat-value">542</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="fa-solid fa-dollar-sign"></i>
+        </div>
+        <div class="stat-content">
+            <p class="stat-label">Doanh thu tháng</p>
+            <h3 class="stat-value">₫245M</h3>
+        </div>
+    </div>
+
+</div>
+
+
+
