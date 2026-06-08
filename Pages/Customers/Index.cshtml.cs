@@ -76,7 +76,6 @@ namespace nhom1dotnet.Pages_Customers
             TotalRevenue   = Customers.Sum(c => c.TotalSpent);
         }
 
-        // ── THÊM ────────────────────────────────────────────────────────
         public async Task<IActionResult> OnPostAddAsync(
             string fullname, string phone, string? email, string? address, string? citizenid)
         {
@@ -97,7 +96,6 @@ namespace nhom1dotnet.Pages_Customers
             return RedirectToPage(new { msg = $"Đã thêm khách hàng \"{fullname}\" thành công." });
         }
 
-        // ── SỬA ─────────────────────────────────────────────────────────
         public async Task<IActionResult> OnPostEditAsync(
             int id, string fullname, string phone, string? email, string? address, string? citizenid)
         {
@@ -118,7 +116,6 @@ namespace nhom1dotnet.Pages_Customers
             return RedirectToPage(new { msg = $"Đã cập nhật khách hàng \"{fullname}\" thành công." });
         }
 
-        // ── XÓA ─────────────────────────────────────────────────────────
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
@@ -130,7 +127,6 @@ namespace nhom1dotnet.Pages_Customers
             return RedirectToPage(new { msg = $"Đã xóa khách hàng \"{customer.full_name}\" thành công." });
         }
 
-        // ── ViewModel ───────────────────────────────────────────────────
         public class CustomerViewModel
         {
             public int Id { get; set; }

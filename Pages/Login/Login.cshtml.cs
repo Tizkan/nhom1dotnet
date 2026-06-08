@@ -24,7 +24,6 @@ namespace nhom1dotnet.Pages
 
         public IActionResult OnGet()
         {
-            // Nếu đã đăng nhập thì chuyển thẳng vào trang chính
             if (HttpContext.Session.GetString("username") != null)
                 return RedirectToPage("/Index");
 

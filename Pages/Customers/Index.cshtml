@@ -97,7 +97,6 @@
                         <td>@(item.LastBooking.HasValue ? item.LastBooking.Value.ToString("yyyy-MM-dd") : "-")</td>
                         <td>
                             <div class="action-buttons">
-
                                 <button class="action-link view" type="button" data-id="@item.Id"
                                         data-fullname="@item.FullName" data-phone="@item.Phone" data-email="@item.Email"
                                         data-address="@(item.Address ?? "")" data-citizenid="@item.CitizenId"
@@ -136,7 +135,7 @@
     </div>
 </div>
 
-<!-- ===== MODAL XEM ===== -->
+<!--Xem -->
 <div class="modal-overlay" id="viewModal">
     <div class="modal-box">
         <div class="modal-header">
@@ -184,7 +183,7 @@
     </div>
 </div>
 
-<!-- ===== MODAL THÊM ===== -->
+<!--Thêm -->
 <div class="modal-overlay" id="addModal">
     <div class="modal-box">
         <div class="modal-header">
@@ -225,7 +224,7 @@
     </div>
 </div>
 
-<!-- ===== MODAL SỬA ===== -->
+<!--Sửa -->
 <div class="modal-overlay" id="editModal">
     <div class="modal-box">
         <div class="modal-header">
@@ -267,7 +266,7 @@
     </div>
 </div>
 
-<!-- ===== MODAL XÓA ===== -->
+<!-- Xóa -->
 <div class="modal-overlay" id="deleteModal">
     <div class="modal-box modal-sm">
         <div class="modal-header danger">
