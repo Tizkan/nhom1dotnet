@@ -99,7 +99,14 @@
                 <td>@nights đêm</td>
 
                 <td>
-                    @booking.total_amount?.ToString("N0") ₫
+                    @if (booking.total_amount.HasValue)
+                    {
+                        @(booking.total_amount.Value.ToString("N0") + " ₫")
+                    }
+                    else
+                    {
+                        <span>Chưa tính</span>
+                    }
                 </td>
 
                 <td>

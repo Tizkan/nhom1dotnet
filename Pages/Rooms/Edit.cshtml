@@ -1,0 +1,25 @@
+@page
+@model EditModel
+
+<h2>Sửa phòng</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Room.id" />
+
+    <label>Số phòng</label>
+    <input asp-for="Room.room_number" />
+
+    <label>Loại</label>
+    <input asp-for="Room.room_type_id" />
+
+    <label>Tầng</label>
+    <input asp-for="Room.floor_number" />
+
+    <label>Giá</label>
+    <input asp-for="Room.RoomType.price" />
+
+    <label>Trạng thái</label>
+    <input asp-for="Room.status" />
+
+    <button type="submit">Cập nhật</button>
+</form>

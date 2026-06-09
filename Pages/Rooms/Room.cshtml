@@ -1,0 +1,450 @@
+@page
+@model nhom1dotnet.Pages.Rooms.RoomModel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/room.css" asp-append-version="true" />
+}
+
+@{
+    ViewData["Title"] = "Quản lý phòng";
+
+    // Helper: status -> css class + label tiếng Việt
+    string StatusClass(string? s) => s switch {
+        "available"   => "s-available",
+        "booked"      => "s-booked",
+        "occupied"    => "s-occupied",
+        "cleaning"    => "s-cleaning",
+        "maintenance" => "s-maintenance",
+        _             => "s-available"
+    };
+    string StatusLabel(string? s) => s switch {
+        "available"   => "Trống",
+        "booked"      => "Đã đặt",
+        "occupied"    => "Đang thuê",
+        "cleaning"    => "Dọn dẹp",
+        "maintenance" => "Bảo trì",
+        _             => s ?? ""
+    };
+
+    // Helper: type name -> css class
+    string TypeClass(string? n) => n?.ToLower() switch {
+        "standard" => "type-standard",
+        "deluxe"   => "type-deluxe",
+        "suite"    => "type-suite",
+        _          => "type-other"
+    };
+}
+
+<!-- ── HEADER ─────────────────────────────────────── -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Quản lý phòng</h1>
+    </div>
+    <button class="btn-add" onclick="openAdd()">
+        <i class="fas fa-plus"></i> Thêm phòng
+    </button>
+</div>
+
+<!-- ── ALERT ──────────────────────────────────────── -->
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> @Model.SuccessMessage
+        <button class="btn-close-alert" onclick="this.parentElement.remove()">×</button>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i> @Model.ErrorMessage
+        <button class="btn-close-alert" onclick="this.parentElement.remove()">×</button>
+    </div>
+}
+
+<!-- ── FILTER ─────────────────────────────────────── -->
+<form method="get">
+    <div class="filter-panel">
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" name="Search" value="@Model.Search"
+                   placeholder="Tìm kiếm theo số phòng hoặc loại phòng..." />
+        </div>
+
+        <select name="FloorFilter" class="filter-select">
+            <option value="">Tất cả tầng</option>
+            @foreach (var f in Model.Floors)
+            {
+                <option value="@f" selected="@(Model.FloorFilter == f)">Tầng @f</option>
+            }
+        </select>
+
+        <select name="StatusFilter" class="filter-select">
+            <option value="">Tất cả trạng thái</option>
+            @foreach (var s in new[] { "available", "booked", "occupied", "cleaning", "maintenance" })
+            {
+                <option value="@s" selected="@(Model.StatusFilter == s)">
+                    @(s switch {
+                        "available"   => "Trống",
+                        "booked"      => "Đã đặt",
+                        "occupied"    => "Đang thuê",
+                        "cleaning"    => "Dọn dẹp",
+                        "maintenance" => "Bảo trì",
+                        _             => s
+                    })
+                </option>
+            }
+        </select>
+
+        <button type="submit" style="display:none"></button>
+    </div>
+</form>
+
+<!-- ── TABLE ──────────────────────────────────────── -->
+<div class="room-table-wrap">
+    <table class="room-table">
+        <thead>
+            <tr>
+                <th>Số phòng</th>
+                <th>Loại phòng</th>
+                <th>Tầng</th>
+                <th>Giá/đêm</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Rooms.Any())
+            {
+                <tr>
+                    <td colspan="6" class="no-data">
+                        <i class="fas fa-door-open"></i>
+                        Chưa có phòng nào.
+                    </td>
+                </tr>
+            }
+            @foreach (var r in Model.Rooms)
+            {
+                <tr>
+                    <td><span class="room-num">@r.room_number</span></td>
+
+                    <td>
+                        <span class="type-badge @TypeClass(r.RoomType?.name)">
+                            @(r.RoomType?.name ?? "—")
+                        </span>
+                    </td>
+
+                    <td>Tầng @r.floor_number</td>
+
+                    <td class="price-cell">
+                        @if (r.RoomType != null)
+                        {
+                            <text>₫@r.RoomType.price.ToString("N0")</text>
+                        }
+                        else { <text>—</text> }
+                    </td>
+
+                    <td>
+                        <span class="status-badge @StatusClass(r.status)">
+                            @StatusLabel(r.status)
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="action-buttons">
+                            <button class="icon-btn edit"
+                                    onclick="openEdit(@r.id, '@r.room_number', @r.room_type_id, @r.floor_number, '@r.status')"
+                                    title="Sửa">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button class="icon-btn del"
+                                    onclick="openDelete(@r.id, '@r.room_number')"
+                                    title="Xóa">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL THÊM PHÒNG
+══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-door-open"></i> Thêm phòng mới</h3>
+            <button class="modal-close" onclick="closeModal('addModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Số phòng <span class="req">*</span></label>
+                <input type="text" id="add_num" class="form-control" placeholder="VD: 101" />
+                <div class="err-msg" id="add_num_err">Vui lòng nhập số phòng.</div>
+            </div>
+            <div class="form-group">
+                <label>Loại phòng <span class="req">*</span></label>
+                <select id="add_type" class="form-control">
+                    <option value="">-- Chọn loại phòng --</option>
+                    @foreach (var t in Model.RoomTypes)
+                    {
+                        <option value="@t.id">@t.name — ₫@t.price.ToString("N0")/đêm</option>
+                    }
+                </select>
+                <div class="err-msg" id="add_type_err">Vui lòng chọn loại phòng.</div>
+            </div>
+            <div class="form-group">
+                <label>Số tầng <span class="req">*</span></label>
+                <input type="number" id="add_floor" class="form-control" placeholder="VD: 1" min="1" max="99" />
+                <div class="err-msg" id="add_floor_err">Số tầng phải từ 1 đến 99.</div>
+            </div>
+            <div class="form-group">
+                <label>Trạng thái <span class="req">*</span></label>
+                <select id="add_status" class="form-control">
+                    <option value="available">Trống</option>
+                    <option value="booked">Đã đặt</option>
+                    <option value="occupied">Đang thuê</option>
+                    <option value="cleaning">Dọn dẹp</option>
+                    <option value="maintenance">Bảo trì</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel-m" onclick="closeModal('addModal')">Hủy</button>
+                <button class="btn-primary-m" onclick="submitAdd()">
+                    <i class="fas fa-save"></i> Lưu phòng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL SỬA PHÒNG
+══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Sửa phòng</h3>
+            <button class="modal-close" onclick="closeModal('editModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="edit_id" />
+            <div class="form-group">
+                <label>Số phòng <span class="req">*</span></label>
+                <input type="text" id="edit_num" class="form-control" />
+                <div class="err-msg" id="edit_num_err">Vui lòng nhập số phòng.</div>
+            </div>
+            <div class="form-group">
+                <label>Loại phòng <span class="req">*</span></label>
+                <select id="edit_type" class="form-control">
+                    <option value="">-- Chọn loại phòng --</option>
+                    @foreach (var t in Model.RoomTypes)
+                    {
+                        <option value="@t.id">@t.name — ₫@t.price.ToString("N0")/đêm</option>
+                    }
+                </select>
+                <div class="err-msg" id="edit_type_err">Vui lòng chọn loại phòng.</div>
+            </div>
+            <div class="form-group">
+                <label>Số tầng <span class="req">*</span></label>
+                <input type="number" id="edit_floor" class="form-control" min="1" max="99" />
+                <div class="err-msg" id="edit_floor_err">Số tầng phải từ 1 đến 99.</div>
+            </div>
+            <div class="form-group">
+                <label>Trạng thái <span class="req">*</span></label>
+                <select id="edit_status" class="form-control">
+                    <option value="available">Trống</option>
+                    <option value="booked">Đã đặt</option>
+                    <option value="occupied">Đang thuê</option>
+                    <option value="cleaning">Dọn dẹp</option>
+                    <option value="maintenance">Bảo trì</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel-m" onclick="closeModal('editModal')">Hủy</button>
+                <button class="btn-primary-m" onclick="submitEdit()">
+                    <i class="fas fa-save"></i> Cập nhật
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL XÓA PHÒNG
+══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box sm">
+        <div class="modal-header danger">
+            <h3><i class="fas fa-trash-alt"></i> Xác nhận xóa</h3>
+            <button class="modal-close" onclick="closeModal('deleteModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="del-warning">
+                <i class="fas fa-exclamation-triangle warn-icon"></i>
+                <p>Bạn có chắc muốn xóa phòng <strong id="del_name"></strong>?</p>
+                <p class="del-note">Hành động này không thể hoàn tác.</p>
+            </div>
+            <input type="hidden" id="del_id" />
+            <div class="modal-actions">
+                <button class="btn-cancel-m" onclick="closeModal('deleteModal')">Hủy</button>
+                <button class="btn-danger-m" onclick="submitDelete()">
+                    <i class="fas fa-trash-alt"></i> Xóa phòng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    <script>
+    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+    /* ── OPEN / CLOSE MODAL ── */
+    function openAdd() {
+        clearForm('add');
+        document.getElementById('addModal').classList.add('open');
+    }
+
+    function openEdit(id, num, typeId, floor, status) {
+        clearForm('edit');
+        document.getElementById('edit_id').value    = id;
+        document.getElementById('edit_num').value   = num;
+        document.getElementById('edit_floor').value = floor;
+        setSelect('edit_type',   typeId.toString());
+        setSelect('edit_status', status);
+        document.getElementById('editModal').classList.add('open');
+    }
+
+    function openDelete(id, num) {
+        document.getElementById('del_id').value  = id;
+        document.getElementById('del_name').textContent = num;
+        document.getElementById('deleteModal').classList.add('open');
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+    }
+
+    /* Đóng khi click nền */
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+        m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    });
+
+    /* ── HELPERS ── */
+    function setSelect(id, val) {
+        const sel = document.getElementById(id);
+        for (let o of sel.options) if (o.value === val) { o.selected = true; break; }
+    }
+
+    function clearForm(prefix) {
+        ['num','floor'].forEach(f => {
+            const el = document.getElementById(`${prefix}_${f}`);
+            if (el) el.value = '';
+        });
+        ['type','status'].forEach(f => {
+            const el = document.getElementById(`${prefix}_${f}`);
+            if (el) el.selectedIndex = 0;
+        });
+        clearErrors(prefix);
+    }
+
+    function clearErrors(prefix) {
+        document.querySelectorAll(`[id^="${prefix}_"][id$="_err"]`)
+            .forEach(el => { el.classList.remove('show'); });
+        document.querySelectorAll(`#${prefix}Modal .form-control`)
+            .forEach(el => el.classList.remove('err'));
+    }
+
+    function showErr(id, fieldId) {
+        document.getElementById(id).classList.add('show');
+        document.getElementById(fieldId).classList.add('err');
+    }
+
+    /* ── VALIDATE & SUBMIT ADD ── */
+    function submitAdd() {
+        clearErrors('add');
+        let ok = true;
+
+        const num   = document.getElementById('add_num').value.trim();
+        const type  = document.getElementById('add_type').value;
+        const floor = parseInt(document.getElementById('add_floor').value);
+        const status = document.getElementById('add_status').value;
+
+        if (!num)  { showErr('add_num_err',   'add_num');   ok = false; }
+        if (!type) { showErr('add_type_err',  'add_type');  ok = false; }
+        if (!floor || floor < 1 || floor > 99) { showErr('add_floor_err', 'add_floor'); ok = false; }
+
+        if (!ok) return;
+
+        postForm('?handler=Add', {
+            roomNumber:  num,
+            roomTypeId:  type,
+            floorNumber: floor,
+            status:      status
+        });
+    }
+
+    /* ── VALIDATE & SUBMIT EDIT ── */
+    function submitEdit() {
+        clearErrors('edit');
+        let ok = true;
+
+        const id    = document.getElementById('edit_id').value;
+        const num   = document.getElementById('edit_num').value.trim();
+        const type  = document.getElementById('edit_type').value;
+        const floor = parseInt(document.getElementById('edit_floor').value);
+        const status = document.getElementById('edit_status').value;
+
+        if (!num)  { showErr('edit_num_err',   'edit_num');   ok = false; }
+        if (!type) { showErr('edit_type_err',  'edit_type');  ok = false; }
+        if (!floor || floor < 1 || floor > 99) { showErr('edit_floor_err', 'edit_floor'); ok = false; }
+
+        if (!ok) return;
+
+        postForm('?handler=Edit', {
+            id:          id,
+            roomNumber:  num,
+            roomTypeId:  type,
+            floorNumber: floor,
+            status:      status
+        });
+    }
+
+    /* ── SUBMIT DELETE ── */
+    function submitDelete() {
+        postForm('?handler=Delete', { id: document.getElementById('del_id').value });
+    }
+
+    /* ── POST HELPER ── */
+    function postForm(action, data) {
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = action;
+
+        const t = document.createElement('input');
+        t.type = 'hidden'; t.name = '__RequestVerificationToken'; t.value = token;
+        form.appendChild(t);
+
+        for (const [k, v] of Object.entries(data)) {
+            const i = document.createElement('input');
+            i.type = 'hidden';
+            // Razor model binding: tên phải khớp với tham số action
+            i.name  = k.charAt(0).toUpperCase() + k.slice(1);
+            i.value = v;
+            form.appendChild(i);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    /* ── AUTO-FILTER khi đổi dropdown ── */
+    document.querySelectorAll('.filter-select').forEach(sel => {
+        sel.addEventListener('change', () => sel.closest('form').submit());
+    });
+    </script>
+}

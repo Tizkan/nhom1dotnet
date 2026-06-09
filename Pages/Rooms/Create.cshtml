@@ -1,0 +1,27 @@
+@page
+@model CreateModel
+
+<h2>Thêm phòng</h2>
+
+<form method="post">
+    <label>Số phòng</label>
+    <input asp-for="Room.room_number" />
+
+    <label>Loại</label>
+    <input asp-for="Room.room_type_id" />
+
+    <label>Tầng</label>
+    <input asp-for="Room.floor_number" />
+
+    <label>Giá</label>
+    <input asp-for="Room.RoomType.price" />
+
+    <label>Trạng thái</label>
+    <input asp-for="Room.status" />
+        <option>Trống</option>
+        <option>Đang thuê</option>
+        <option>Dọn dẹp</option>
+    </select>
+
+    <button type="submit">Lưu</button>
+</form>

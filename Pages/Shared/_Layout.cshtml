@@ -37,8 +37,8 @@
                     </a>
                 </li>
 
-                <li class="@(ViewContext.RouteData.Values["page"]?.ToString() == "" ? "active" : "")">
-                    <a asp-page="">
+                <li class="@(ViewContext.RouteData.Values["page"]?.ToString() == "/Rooms/Room" ? "active" : "")">
+                    <a asp-page="/Rooms/Room">
                         <i class="fa-solid fa-bed"></i>
                         <span>Quản lý phòng</span>
                     </a>
