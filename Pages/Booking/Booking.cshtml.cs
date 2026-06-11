@@ -21,35 +21,14 @@ namespace nhom1dotnet.Pages.Booking
 
         public async Task OnGetAsync()
         {
+            
             Bookings = await _context.Bookings
-                .Include(b => b.Customer)
-                .Include(b => b.Room)
+                .Include(b => b.Customer) 
+                .Include(b => b.Room)   
                 .ToListAsync();
 
         }
 
-        // public async Task<IActionResult> OnPostConfirmPaymentAsync(int id)
-        // {
-        //     var booking = await _context.Bookings
-        //         .FirstOrDefaultAsync(b => b.id == id);
-
-        //     if (booking == null)
-        //     {
-        //         return new JsonResult(new
-        //         {
-        //             success = false
-        //         });
-        //     }
-
-        //     booking.status = "Đã xác nhận";
-
-        //     await _context.SaveChangesAsync();
-
-        //     return new JsonResult(new
-        //     {
-        //         success = true
-        //     });
-        // }
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             var booking = await _context.Bookings.FindAsync(id);
@@ -62,22 +41,23 @@ namespace nhom1dotnet.Pages.Booking
 
             return RedirectToPage();
         }
+
         public IActionResult OnPostPay(int id)
-        {
+        {   
             var booking = _context.Bookings.FirstOrDefault(x => x.id == id);
 
             if (booking == null)
                 return RedirectToPage();
 
             Console.WriteLine("AMOUNT: " + booking.total_amount);
-            
+
             var url = _vnPay.CreatePaymentUrl(
                 HttpContext,
                 booking.total_amount ?? 0,
                 booking.id
             );
 
-            Console.WriteLine("VNPAY URL: " + url); // ✅ thêm dòng này
+            Console.WriteLine("VNPAY URL: " + url);
             return Redirect(url);
         }
     }

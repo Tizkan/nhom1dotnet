@@ -7,7 +7,7 @@ namespace nhom1dotnet.Models
         public int id { get; set; }
 
         [ForeignKey("Customer")]
-        public int customer_id { get; set; }
+        public int customer_id { get; set; } 
 
         [ForeignKey("Room")]
         public int room_id { get; set; }
@@ -24,7 +24,7 @@ namespace nhom1dotnet.Models
 
         public string status { get; set; }
 
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } 
 
         public Room Room { get; set; }
     }

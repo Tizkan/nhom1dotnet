@@ -32,11 +32,10 @@ namespace nhom1dotnet.Pages.Booking
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var data = await _context.Bookings.FindAsync(Booking.id);
-
-            if (data == null)
+            var data = await _context.Bookings.FindAsync(Booking.id); 
+            if (data == null) 
             {
-                return RedirectToPage("/Booking/Booking");
+                return RedirectToPage("/Booking/Booking");  
             }
 
             data.customer_id = Booking.customer_id;

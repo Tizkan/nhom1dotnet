@@ -21,6 +21,7 @@
 
 <div class="booking-stats">
 
+    //dữ liệu đếm bằng LINQ .Count() trực tiếp trên list đã load, không query DB thêm lần nào nữa.
     <div class="stat-card total">
         <div class="stat-title">Tổng đặt phòng</div>
         <div class="stat-number">
@@ -46,6 +47,13 @@
         <div class="stat-title">Đang ở</div>
         <div class="stat-number">
             @Model.Bookings.Count(b => b.status == "Đã Check-in")
+        </div>
+    </div>
+
+    <div class="stat-card staying">
+        <div class="stat-title">Đã trả</div>
+        <div class="stat-number">
+            @Model.Bookings.Count(b => b.status == "Đã Check-out")
         </div>
     </div>
 
@@ -99,14 +107,7 @@
                 <td>@nights đêm</td>
 
                 <td>
-                    @if (booking.total_amount.HasValue)
-                    {
-                        @(booking.total_amount.Value.ToString("N0") + " ₫")
-                    }
-                    else
-                    {
-                        <span>Chưa tính</span>
-                    }
+                    @booking.total_amount?.ToString("N0") ₫
                 </td>
 
                 <td>
@@ -145,8 +146,9 @@
 </table>
 <div class="payment-container">
 
+    //khi submit thì post handler Pay với id đã chọn
     <form method="post" asp-page-handler="Pay" id="payForm">
-        <input type="hidden" name="id" id="selectedBookingId" value="" />
+        <input type="hidden" name="id" id="selectedBookingId" value="" />//Để chứa booking id được chọn.
         <button id="btnPayment" class="btn-payment" disabled>
             Thanh toán
         </button>
@@ -161,11 +163,12 @@
             const hiddenId = document.getElementById("selectedBookingId");
 
             document.addEventListener("change", function () {
-                const checked = document.querySelectorAll(".booking-checkbox:checked");
-                btn.disabled = checked.length === 0;
-
+                const checked = document.querySelectorAll(".booking-checkbox:checked");//đã được click
+                btn.disabled = checked.length === 0; //đếm số checkbox
+                
+                //theo dõi input nếu hơn 1 checkbox thì enable btnPayment
                 if (checked.length > 0) {
-                    hiddenId.value = checked[checked.length - 1].value; // lấy booking id
+                    hiddenId.value = checked[checked.length - 1].value; // lấy booking id được chọn vào input
                 } else {
                     hiddenId.value = "";
                 }
