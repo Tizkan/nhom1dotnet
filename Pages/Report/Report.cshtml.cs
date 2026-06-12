@@ -11,7 +11,7 @@ public class ReportModel : PageModel
 
     public ReportModel(AppDbContext db) => _db = db;
 
-    // KPI
+    // KPI  
     public decimal RevenueThisMonth { get; set; }
     public decimal RevenueLastMonth { get; set; }
     public double  OccupancyRate    { get; set; }

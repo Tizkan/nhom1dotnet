@@ -1,5 +1,6 @@
 ﻿@page
-@model IndexModel
+@model nhom1dotnet.Pages.IndexModel
+
 
 @{
     ViewData["Title"] = "Tổng quan";
@@ -30,7 +31,7 @@
         </div>
         <div class="stat-content">
             <p class="stat-label">Booking hôm nay</p>
-            <h3 class="stat-value">32</h3>
+            <h3 class="stat-value">@Model.TotalBookings</h3>
         </div>
     </div>
 
@@ -39,8 +40,8 @@
             <i class="fa-solid fa-users"></i>
         </div>
         <div class="stat-content">
-            <p class="stat-label">Khách hàng</p>
-            <h3 class="stat-value">542</h3>
+                <p class="stat-label">Tổng khách hàng</p>
+                <h2 class="stat-value">@Model.TotalCustomers</h2>
         </div>
     </div>
 
@@ -49,10 +50,61 @@
             <i class="fa-solid fa-dollar-sign"></i>
         </div>
         <div class="stat-content">
-            <p class="stat-label">Doanh thu tháng</p>
-            <h3 class="stat-value">₫245M</h3>
+                <p class="stat-label">Tổng doanh thu</p>
+                <h2 class="stat-value" style="color:#16a34a;">@string.Format("{0:N0} đ", Model.TotalRevenue)</h2>
         </div>
     </div>
+</div>
+
+<div class="dashboard-content">
+    <!-- ── Hoạt động gần đây ── -->
+        <div class="activity-card">
+        <h3>Hoạt động gần đây</h3>
+
+        @foreach (var activity in Model.RecentActivities)
+        {
+            <div class="activity-item">
+                <div class="activity-time">
+                    @activity.Time
+                </div>
+
+                <div class="activity-content">
+                    <div class="activity-title">
+                        @activity.Title
+                    </div>
+
+                    <div class="activity-user">
+                        @activity.CustomerName
+                    </div>
+                </div>
+            </div>
+        }
+        </div>
+    <!-- ── Danh sách phòng trống ── -->
+    <div class="room-card">
+    <h3>Danh sách phòng trống</h3>
+
+    @if (Model.AvailableRooms.Any())
+    {
+        @foreach (var room in Model.AvailableRooms)
+        {
+            <div class="room-item">
+                <div class="room-number">
+                    Phòng @room.room_number
+                </div>
+
+                <div class="room-status">
+                    Trống
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>Không có phòng trống.</p>
+    }
+    </div>
+</div>
 
 </div>
 
