@@ -223,3 +223,27 @@ body {
     font-size: 12px;
     font-weight: 600;
 }
+
+.room-type-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    width: fit-content;
+}
+
+.room-type-Standard {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.room-type-Deluxe {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.room-type-Suite {
+    background: #ffedd5;
+    color: #ea580c;
+}
