@@ -70,30 +70,9 @@
                    placeholder="Tìm kiếm theo số phòng hoặc loại phòng..." />
         </div>
 
-        <select name="FloorFilter" class="filter-select">
-            <option value="">Tất cả tầng</option>
-            @foreach (var f in Model.Floors)
-            {
-                <option value="@f" selected="@(Model.FloorFilter == f)">Tầng @f</option>
-            }
-        </select>
+        @foreach (var f in Model.Rooms.Select(r => r.floor_number).Distinct().OrderBy(f => f)){}
 
-        <select name="StatusFilter" class="filter-select">
-            <option value="">Tất cả trạng thái</option>
-            @foreach (var s in new[] { "available", "booked", "occupied", "cleaning", "maintenance" })
-            {
-                <option value="@s" selected="@(Model.StatusFilter == s)">
-                    @(s switch {
-                        "available"   => "Trống",
-                        "booked"      => "Đã đặt",
-                        "occupied"    => "Đang thuê",
-                        "cleaning"    => "Dọn dẹp",
-                        "maintenance" => "Bảo trì",
-                        _             => s
-                    })
-                </option>
-            }
-        </select>
+        @foreach (var s in Model.Rooms.Select(r => r.status).Distinct().OrderBy(s => s)){}
 
         <button type="submit" style="display:none"></button>
     </div>
