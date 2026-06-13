@@ -1,240 +1,336 @@
+// ===== EMAILJS CONFIG =====
 const EMAILJS_PUBLIC_KEY  = "c2mCh8VYFr_l9mdmy";
 const EMAILJS_SERVICE_ID  = "service_cjsueiu";
 const EMAILJS_TEMPLATE_ID = "template_sb53noo";
 
 emailjs.init(EMAILJS_PUBLIC_KEY);
 
-let addOtpCode = "";
-let addEmailVerified = false;
+// ===== MODAL =====
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
 
-let editOtpCode = "";
-let editEmailVerified = false;
-let editOriginalEmail = "";
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+    document.body.style.overflow = '';
+}
 
+document.querySelectorAll('.modal-overlay').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+        if (e.target === el) closeModal(el.id);
+    });
+});
+
+// ===== VIEW MODAL =====
+function openViewModal(btn) {
+    var d = btn.dataset;
+    var initials = d.fullname.trim().split(/\s+/).filter(Boolean).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+    document.getElementById('view_initials').textContent   = initials;
+    document.getElementById('view_fullname').textContent   = d.fullname;
+    document.getElementById('view_email_sub').textContent  = d.email || '—';
+    document.getElementById('view_phone').textContent      = d.phone || '—';
+    document.getElementById('view_email').textContent      = d.email || '—';
+    document.getElementById('view_citizenid').textContent  = d.citizenid || '—';
+    document.getElementById('view_birthdate').textContent  = d.birthdate || '—';
+    document.getElementById('view_createdat').textContent  = d.createdat || '—';
+    openModal('viewModal');
+}
+
+// ===== OTP HELPER =====
 function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function sendOtp() {
-    const email = document.getElementById("add_email").value.trim();
-    if (!email || !email.includes("@")) {
-        alert("Vui lòng nhập email hợp lệ trước khi gửi OTP.");
-        return;
-    }
-    const btn = document.getElementById("btnSendOtp");
-    btn.disabled = true;
-    btn.textContent = "Đang gửi...";
-    addOtpCode = generateOtp();
-    addEmailVerified = false;
-    try {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-            to_email: email,
-            otp_code: addOtpCode,
-            to_name: document.getElementById("add_fullname").value || "Nhân viên"
-        });
-        document.getElementById("otpGroup").style.display = "block";
-        document.getElementById("verifiedGroup").style.display = "none";
-        document.getElementById("otpHint").textContent = "✔ Mã OTP đã gửi tới " + email;
-        document.getElementById("otpHint").style.color = "#16a34a";
-        startOtpTimer(btn, "add");
-    } catch (err) {
-        console.error(err);
-        alert("Gửi OTP thất bại. Kiểm tra lại cấu hình EmailJS.");
-        btn.disabled = false;
-        btn.textContent = "Gửi OTP";
-    }
+// ===== ADD MODAL =====
+let addOtpGenerated = "";
+let addOtpTimer     = null;
+let addOtpExpired   = false;
+
+function setAddOtpStatus(msg, type) {
+    var el = document.getElementById('addOtpStatus');
+    el.textContent = msg;
+    el.className = "otp-status" + (type ? " " + type : "");
 }
 
-async function sendEditOtp() {
-    const email = document.getElementById("edit_email").value.trim();
-    if (!email || !email.includes("@")) {
-        alert("Vui lòng nhập email hợp lệ trước khi gửi OTP.");
-        return;
-    }
-    const btn = document.getElementById("btnEditSendOtp");
-    btn.disabled = true;
-    btn.textContent = "Đang gửi...";
-    editOtpCode = generateOtp();
-    editEmailVerified = false;
-    try {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-            to_email: email,
-            otp_code: editOtpCode,
-            to_name: document.getElementById("edit_fullname").value || "Nhân viên"
-        });
-        document.getElementById("editOtpGroup").style.display = "block";
-        document.getElementById("editVerifiedGroup").style.display = "none";
-        document.getElementById("editOtpHint").textContent = "✔ Mã OTP đã gửi tới " + email;
-        document.getElementById("editOtpHint").style.color = "#16a34a";
-        startOtpTimer(btn, "edit");
-    } catch (err) {
-        console.error(err);
-        alert("Gửi OTP thất bại.");
-        btn.disabled = false;
-        btn.textContent = "Gửi OTP";
-    }
-}
+function startAddTimer(seconds) {
+    clearInterval(addOtpTimer);
+    var timerEl   = document.getElementById('addOtpTimer');
+    var remaining = seconds;
 
-function startOtpTimer(btn, mode) {
-    let seconds = 120;
-    const interval = setInterval(() => {
-        seconds--;
-        btn.textContent = "Gửi lại (" + seconds + "s)";
-        if (seconds <= 0) {
-            clearInterval(interval);
-            btn.disabled = false;
-            btn.textContent = "Gửi lại OTP";
-            if (mode === "add") addOtpCode = "";
-            else editOtpCode = "";
+    timerEl.textContent = "Hiệu lực: " + remaining + "s";
+
+    addOtpTimer = setInterval(function () {
+        remaining--;
+        timerEl.textContent = "Hiệu lực: " + remaining + "s";
+        if (remaining <= 0) {
+            clearInterval(addOtpTimer);
+            addOtpExpired   = true;
+            addOtpGenerated = "";
+            timerEl.textContent = "Mã OTP đã hết hạn.";
+            document.getElementById('btnAddSendOtp').disabled    = false;
+            document.getElementById('btnAddSendOtp').textContent = "Gửi lại";
+            setAddOtpStatus("", "");
         }
     }, 1000);
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("add_otp").addEventListener("input", function () {
-        if (this.value.trim() === addOtpCode && addOtpCode !== "") {
-            addEmailVerified = true;
-            document.getElementById("otpGroup").style.display = "none";
-            document.getElementById("verifiedGroup").style.display = "block";
-        }
-    });
-    document.getElementById("edit_otp").addEventListener("input", function () {
-        if (this.value.trim() === editOtpCode && editOtpCode !== "") {
-            editEmailVerified = true;
-            document.getElementById("editOtpGroup").style.display = "none";
-            document.getElementById("editVerifiedGroup").style.display = "block";
-        }
-    });
-    document.querySelectorAll(".modal-overlay").forEach(function (overlay) {
-        overlay.addEventListener("click", function (e) {
-            if (e.target === overlay) overlay.classList.remove("active");
+async function sendAddOtp() {
+    var emailInput = document.getElementById('add_email');
+    var email      = emailInput.value.trim();
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailInput.focus();
+        document.getElementById('addOtpGroup').style.display = 'block';
+        setAddOtpStatus("Vui lòng nhập email hợp lệ trước.", "error");
+        return;
+    }
+
+    var btn         = document.getElementById('btnAddSendOtp');
+    btn.disabled    = true;
+    btn.textContent = "Đang gửi...";
+    setAddOtpStatus("", "");
+    clearInterval(addOtpTimer);
+    addOtpExpired   = false;
+    addOtpGenerated = generateOtp();
+    document.getElementById('add_otp_verified').value = "false";
+
+    var nameInput = document.querySelector('#addForm input[name="fullname"]');
+    var toName    = nameInput && nameInput.value.trim() ? nameInput.value.trim() : email;
+
+    try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            to_email: email,
+            to_name:  toName,
+            otp_code: addOtpGenerated
         });
-    });
-});
+
+        document.getElementById('addOtpGroup').style.display  = 'block';
+        document.getElementById('add_otp_input').value        = '';
+        document.getElementById('add_otp_input').disabled     = false;
+        setAddOtpStatus("Đã gửi OTP tới " + email, "success");
+        startAddTimer(120);
+        btn.textContent = "Gửi lại";
+
+    } catch (err) {
+        addOtpGenerated = "";
+        btn.disabled    = false;
+        btn.textContent = "Gửi OTP";
+        document.getElementById('addOtpGroup').style.display = 'block';
+        setAddOtpStatus("Gửi thất bại. Kiểm tra lại kết nối.", "error");
+    }
+}
+
+function verifyAddOtp() {
+    var input = document.getElementById('add_otp_input').value.trim();
+
+    if (addOtpExpired || !addOtpGenerated) {
+        setAddOtpStatus("Mã OTP đã hết hạn. Vui lòng gửi lại.", "error");
+        return false;
+    }
+    if (input === addOtpGenerated) {
+        clearInterval(addOtpTimer);
+        document.getElementById('add_otp_verified').value    = "true";
+        document.getElementById('addOtpTimer').textContent   = "";
+        document.getElementById('add_otp_input').disabled    = true;
+        document.getElementById('btnAddSendOtp').disabled    = true;
+        setAddOtpStatus("✓ Xác thực thành công!", "success");
+        return true;
+    } else {
+        setAddOtpStatus("Mã OTP không đúng.", "error");
+        return false;
+    }
+}
+
+function resetAddOtp() {
+    clearInterval(addOtpTimer);
+    addOtpGenerated = "";
+    addOtpExpired   = false;
+    document.getElementById('addOtpGroup').style.display       = 'none';
+    document.getElementById('addOtpTimer').textContent         = '';
+    document.getElementById('add_otp_input').value             = '';
+    document.getElementById('add_otp_input').disabled          = false;
+    document.getElementById('add_otp_verified').value          = 'false';
+    document.getElementById('btnAddSendOtp').disabled          = false;
+    document.getElementById('btnAddSendOtp').textContent       = 'Gửi OTP';
+    setAddOtpStatus('', '');
+}
 
 function openAddModal() {
-    addOtpCode = ""; addEmailVerified = false;
-    document.getElementById("add_fullname").value  = "";
-    document.getElementById("add_email").value     = "";
-    document.getElementById("add_birthdate").value = "";
-    document.getElementById("add_citizenid").value = "";
-    document.getElementById("add_phone").value = "";
-    document.getElementById("add_otp").value       = "";
-    document.getElementById("otpGroup").style.display     = "none";
-    document.getElementById("verifiedGroup").style.display = "none";
-    document.getElementById("otpHint").textContent = "";
-    document.getElementById("btnSendOtp").disabled    = false;
-    document.getElementById("btnSendOtp").textContent = "Gửi OTP";
-    document.getElementById("addModal").classList.add("active");
+    document.getElementById('addForm').reset();
+    resetAddOtp();
+    openModal('addModal');
 }
 
-function openEditModal(id, fullname, email, birthdate, citizenid, phone) {
-    editOriginalEmail = email;
-    editEmailVerified = false;
-    editOtpCode = "";
-    document.getElementById("edit_id").value         = id;
-    document.getElementById("edit_fullname").value   = fullname;
-    document.getElementById("edit_email").value      = email;
-    document.getElementById("edit_birthdate").value  = birthdate;
-    document.getElementById("edit_citizenid").value  = citizenid;
-    document.getElementById("edit_phone").value = phone;
-    document.getElementById("edit_otp").value        = "";
-    document.getElementById("editOtpGroup").style.display     = "none";
-    document.getElementById("editVerifiedGroup").style.display = "none";
-    document.getElementById("editOtpHint").textContent = "";
-    document.getElementById("btnEditSendOtp").disabled    = false;
-    document.getElementById("btnEditSendOtp").textContent = "Gửi OTP";
-    document.getElementById("editModal").classList.add("active");   
+document.getElementById('addForm').addEventListener('submit', function (e) {
+    var otpGroup = document.getElementById('addOtpGroup');
+    if (otpGroup.style.display !== 'none') {
+        if (document.getElementById('add_otp_verified').value !== "true") {
+            e.preventDefault();
+            if (!verifyAddOtp()) {
+                setAddOtpStatus("Vui lòng xác thực OTP trước khi lưu.", "error");
+            }
+        }
+    }
+});
+
+// ===== EDIT MODAL =====
+let editOtpGenerated  = "";
+let editOtpTimer      = null;
+let editOtpExpired    = false;
+let editOriginalEmail = "";
+
+function setEditOtpStatus(msg, type) {
+    var el = document.getElementById('editOtpStatus');
+    el.textContent = msg;
+    el.className = "otp-status" + (type ? " " + type : "");
 }
 
-function openDeleteModal(id, name, email) {
-    document.getElementById("delete_id").value = id;
-    document.getElementById("delete_name").textContent = name + " (" + email + ")";
-    document.getElementById("deleteModal").classList.add("active");
+function startEditTimer(seconds) {
+    clearInterval(editOtpTimer);
+    var timerEl   = document.getElementById('editOtpTimer');
+    var remaining = seconds;
+
+    timerEl.textContent = "Hiệu lực: " + remaining + "s";
+
+    editOtpTimer = setInterval(function () {
+        remaining--;
+        timerEl.textContent = "Hiệu lực: " + remaining + "s";
+        if (remaining <= 0) {
+            clearInterval(editOtpTimer);
+            editOtpExpired   = true;
+            editOtpGenerated = "";
+            timerEl.textContent = "Mã OTP đã hết hạn.";
+            document.getElementById('btnEditSendOtp').disabled    = false;
+            document.getElementById('btnEditSendOtp').textContent = "Gửi lại";
+            setEditOtpStatus("", "");
+        }
+    }, 1000);
 }
 
-function closeModal(id) {
-    document.getElementById(id).classList.remove("active");
-}
+async function sendEditOtp() {
+    var emailInput = document.getElementById('edit_email');
+    var email      = emailInput.value.trim();
 
-function submitAdd() {
-    const fullname  = document.getElementById("add_fullname").value.trim();
-    const email     = document.getElementById("add_email").value.trim();
-    const birthdate = document.getElementById("add_birthdate").value;
-    const citizenid = document.getElementById("add_citizenid").value.trim();
-    const phone     = document.getElementById("add_phone").value.trim();
-
-    if (!fullname || !email) {
-        alert("Vui lòng điền đầy đủ họ tên và email.");
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailInput.focus();
+        document.getElementById('editOtpGroup').style.display = 'block';
+        setEditOtpStatus("Vui lòng nhập email hợp lệ trước.", "error");
         return;
     }
-    if (!addEmailVerified) {
-        alert("Vui lòng xác thực email bằng mã OTP trước khi lưu.");
-        return;
+
+    var btn         = document.getElementById('btnEditSendOtp');
+    btn.disabled    = true;
+    btn.textContent = "Đang gửi...";
+    setEditOtpStatus("", "");
+    clearInterval(editOtpTimer);
+    editOtpExpired   = false;
+    editOtpGenerated = generateOtp();
+    document.getElementById('edit_otp_verified').value = "false";
+
+    var nameInput = document.getElementById('edit_fullname');
+    var toName    = nameInput && nameInput.value.trim() ? nameInput.value.trim() : email;
+
+    try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            to_email: email,
+            to_name:  toName,
+            otp_code: editOtpGenerated
+        });
+
+        document.getElementById('editOtpGroup').style.display  = 'block';
+        document.getElementById('edit_otp_input').value        = '';
+        document.getElementById('edit_otp_input').disabled     = false;
+        setEditOtpStatus("Đã gửi OTP tới " + email, "success");
+        startEditTimer(120);
+        btn.textContent = "Gửi lại";
+
+    } catch (err) {
+        editOtpGenerated = "";
+        btn.disabled    = false;
+        btn.textContent = "Gửi OTP";
+        document.getElementById('editOtpGroup').style.display = 'block';
+        setEditOtpStatus("Gửi thất bại. Kiểm tra lại kết nối.", "error");
     }
-    const form = createHiddenForm("/Staff/staff?handler=Add", {
-        fullname, email, birthdate, citizenid, phone
-    });
-    form.submit();
 }
 
-function submitEdit() {
-    const id        = document.getElementById("edit_id").value;
-    const fullname  = document.getElementById("edit_fullname").value.trim();
-    const email     = document.getElementById("edit_email").value.trim();
-    const birthdate = document.getElementById("edit_birthdate").value;
-    const citizenid = document.getElementById("edit_citizenid").value.trim();
-    const phone     = document.getElementById("edit_phone").value.trim();
+function verifyEditOtp() {
+    var input = document.getElementById('edit_otp_input').value.trim();
 
-    if (!fullname || !email) {
-        alert("Vui lòng điền đầy đủ họ tên và email.");
-        return;
+    if (editOtpExpired || !editOtpGenerated) {
+        setEditOtpStatus("Mã OTP đã hết hạn. Vui lòng gửi lại.", "error");
+        return false;
     }
-    if (email !== editOriginalEmail && !editEmailVerified) {
-        alert("Email đã thay đổi. Vui lòng xác thực OTP cho email mới.");
-        return;
+    if (input === editOtpGenerated) {
+        clearInterval(editOtpTimer);
+        document.getElementById('edit_otp_verified').value    = "true";
+        document.getElementById('editOtpTimer').textContent   = "";
+        document.getElementById('edit_otp_input').disabled    = true;
+        document.getElementById('btnEditSendOtp').disabled    = true;
+        setEditOtpStatus("✓ Xác thực thành công!", "success");
+        return true;
+    } else {
+        setEditOtpStatus("Mã OTP không đúng.", "error");
+        return false;
     }
-    const form = createHiddenForm("/Staff/staff?handler=Edit", {
-        id, fullname, email, birthdate, citizenid, phone
-    });
-    form.submit();
 }
 
-function submitDelete() {
-    const id = document.getElementById("delete_id").value;
-    const form = createHiddenForm("/Staff/staff?handler=Delete", { id });
-    form.submit();
+function resetEditOtp() {
+    clearInterval(editOtpTimer);
+    editOtpGenerated = "";
+    editOtpExpired   = false;
+    document.getElementById('editOtpGroup').style.display       = 'none';
+    document.getElementById('editOtpTimer').textContent         = '';
+    document.getElementById('edit_otp_input').value             = '';
+    document.getElementById('edit_otp_input').disabled          = false;
+    document.getElementById('edit_otp_verified').value          = 'false';
+    document.getElementById('btnEditSendOtp').disabled          = false;
+    document.getElementById('btnEditSendOtp').textContent       = 'Gửi OTP';
+    setEditOtpStatus('', '');
 }
 
-function openViewModal(id, fullname, email, birthdate, citizenid, phone, createdat) {
-    document.getElementById("view_fullname").textContent  = fullname;
-    document.getElementById("view_email").textContent     = email;
-    document.getElementById("view_birthdate").textContent = birthdate;
-    document.getElementById("view_citizenid").textContent = citizenid;
-    document.getElementById("view_phone").textContent     = phone;
-    document.getElementById("view_createdat").textContent = createdat;
-    document.getElementById("viewModal").classList.add("active");
+function openEditModal(btn) {
+    var d = btn.dataset;
+    document.getElementById('edit_id').value        = d.id;
+    document.getElementById('edit_fullname').value  = d.fullname;
+    document.getElementById('edit_email').value     = d.email;
+    document.getElementById('edit_phone').value     = d.phone;
+    document.getElementById('edit_citizenid').value = d.citizenid;
+    document.getElementById('edit_birthdate').value = d.birthdate;
+
+    editOriginalEmail = d.email;
+    resetEditOtp();
+    openModal('editModal');
 }
 
-function createHiddenForm(action, fields) {
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = action;
-    const token = document.querySelector('input[name="__RequestVerificationToken"]');
-    if (token) {
-        const t = document.createElement("input");
-        t.type = "hidden";
-        t.name = "__RequestVerificationToken";
-        t.value = token.value;
-        form.appendChild(t);
+document.getElementById('editForm').addEventListener('submit', function (e) {
+    var currentEmail = document.getElementById('edit_email').value.trim();
+    if (currentEmail !== editOriginalEmail) {
+        if (document.getElementById('edit_otp_verified').value !== "true") {
+            e.preventDefault();
+            document.getElementById('editOtpGroup').style.display = 'block';
+            if (!verifyEditOtp()) {
+                setEditOtpStatus("Vui lòng xác thực OTP cho email mới trước khi lưu.", "error");
+            }
+        }
     }
-    for (const [name, value] of Object.entries(fields)) {
-        const input = document.createElement("input");
-        input.type  = "hidden";
-        input.name  = name;
-        input.value = value || "";
-        form.appendChild(input);
-    }
-    document.body.appendChild(form);
-    return form;
+});
+
+// ===== DELETE MODAL =====
+function openDeleteModal(btn) {
+    document.getElementById('delete_id').value             = btn.dataset.id;
+    document.getElementById('delete_name').textContent     = btn.dataset.fullname;
+    openModal('deleteModal');
 }
+
+document.getElementById('add_otp_input').addEventListener('input', function () {
+    if (this.value.trim().length === 6) {
+        verifyAddOtp();
+    }
+});
+
+document.getElementById('edit_otp_input').addEventListener('input', function () {
+    if (this.value.trim().length === 6) {
+        verifyEditOtp();
+    }
+});
