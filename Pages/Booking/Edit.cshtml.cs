@@ -32,10 +32,10 @@ namespace nhom1dotnet.Pages.Booking
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var data = await _context.Bookings.FindAsync(Booking.id); 
-            if (data == null) 
+            var data = await _context.Bookings.FindAsync(Booking.id);
+            if (data == null)
             {
-                return RedirectToPage("/Booking/Booking");  
+                return RedirectToPage("/Booking/Booking");
             }
 
             data.customer_id = Booking.customer_id;
@@ -43,6 +43,17 @@ namespace nhom1dotnet.Pages.Booking
             data.check_in = Booking.check_in;
             data.check_out = Booking.check_out;
             data.status = Booking.status;
+
+            //tính lại giá tiền khi thay đổi số đêm
+            var room = await _context.Rooms
+                .Include(r => r.RoomType)
+                .FirstOrDefaultAsync(r => r.id == Booking.room_id);
+
+            if (room != null)
+            {
+                var nights = (Booking.check_out - Booking.check_in).Days;
+                data.total_amount = nights * room.RoomType.price;
+            }
 
             await _context.SaveChangesAsync();
 

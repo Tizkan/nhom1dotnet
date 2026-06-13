@@ -75,8 +75,8 @@ body {
 
 /* đã xác nhận */
 .status.confirmed {
-  background: #dbeafe;
-  color: #2563eb;
+  background: #dcfce7;
+  color: #16a34a;
 }
 
 /* chờ xác nhận */
@@ -87,8 +87,8 @@ body {
 
 /* đã check-in */
 .status.checkedin {
-  background: #dcfce7;
-  color: #16a34a;
+  background: #f3e8ff; 
+  color: #7c3aed; 
 }
 
 /* BUTTONS */
@@ -147,7 +147,7 @@ body {
 
 .booking-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 22px;
   margin-bottom: 30px;
 }
