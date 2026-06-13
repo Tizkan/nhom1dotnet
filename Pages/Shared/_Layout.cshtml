@@ -51,8 +51,8 @@
                     </a>
                 </li>
 
-                <li class="@(ViewContext.RouteData.Values["page"]?.ToString() == "/Customers/Index" ? "active" : "")">
-                    <a asp-page="/Customers/Index">
+                <li class="@(ViewContext.RouteData.Values["page"]?.ToString() == "/Customers/customer" ? "active" : "")">
+                    <a asp-page="/Customers/customer">
                         <i class="fa-solid fa-users"></i>
                         <span>Khách hàng</span>
                     </a>
@@ -65,8 +65,8 @@
                     </a>
                 </li>
 
-                <li class="@(ViewContext.RouteData.Values["page"]?.ToString() == "/Staff/Index" ? "active" : "")">
-                    <a asp-page="/Staff/Index">
+                <li class="@(ViewContext.RouteData.Values["page"]?.ToString() == "/Staff/staff" ? "active" : "")">
+                    <a asp-page="/Staff/staff">
                         <i class="fa-solid fa-user-tie"></i>
                         <span>Nhân viên</span>
                     </a>
