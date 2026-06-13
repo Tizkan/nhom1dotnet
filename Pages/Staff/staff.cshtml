@@ -7,6 +7,19 @@
 
 @{
     ViewData["Title"] = "Quản lý nhân viên";
+
+    string MaskKeep2(string? val)
+    {
+        if (string.IsNullOrEmpty(val)) return "—";
+        if (val.Length <= 2) return val;
+        return val.Substring(0, 2) + new string('*', val.Length - 2);
+    }
+
+    string MaskFull(string? val)
+    {
+        if (string.IsNullOrEmpty(val)) return "—";
+        return new string('*', val.Length);
+    }
 }
 
 <div class="staff-dashboard">
@@ -68,7 +81,7 @@
                     <th>Email</th>
                     <th>Ngày sinh</th>
                     <th>CCCD</th>
-                    <th>Ngày tạo</th>
+                    <th>Số điện thoại</th>
                     <th>Thao tác</th>
                 </tr>
             </thead>
@@ -79,19 +92,24 @@
                         <td>
                             <div class="staff-name-cell">
                                 <div class="staff-avatar avatar-staff">
-                                    @(string.Join("", s.full_name.Split(' ').Where(w => w.Length > 0).Select(w => w[0]).Take(2)).ToUpper())
+                                    @(string.Join("", s.full_name.Split(' ').Where(w => w.Length > 0).Select(w =>
+                                w[0]).Take(2)).ToUpper())
                                 </div>
                                 <span class="staff-name">@s.full_name</span>
                             </div>
                         </td>
-                        <td><span class="staff-email">@s.email</span></td>
-                        <td>@(s.birth_date.HasValue ? s.birth_date.Value.ToString("dd/MM/yyyy") : "—")</td>
-                        <td>@(string.IsNullOrEmpty(s.citizen_id) ? "—" : s.citizen_id)</td>
-                        <td>@s.created_at.ToString("dd/MM/yyyy")</td>
+                        <td><span class="staff-email">@MaskKeep2(s.email)</span></td>
+                        <td>@(s.birth_date.HasValue ? MaskFull(s.birth_date.Value.ToString("dd/MM/yyyy")) : "—")</td>
+                        <td>@MaskKeep2(s.citizen_id)</td>
+                        <td>@MaskKeep2(s.phone)</td>
                         <td>
                             <div class="action-buttons">
+                                <button class="action-btn btn-view"
+                                        onclick="openViewModal(@s.id, '@s.full_name', '@s.email', '@(s.birth_date.HasValue ? s.birth_date.Value.ToString("dd/MM/yyyy") : "—")', '@(s.citizen_id ?? "—")', '@(s.phone ?? "—")', '@s.created_at.ToString("dd/MM/yyyy")')">
+                                    <i class="fas fa-eye"></i> Xem
+                                </button>
                                 <button class="action-btn btn-edit"
-                                        onclick="openEditModal(@s.id, '@s.full_name', '@s.email', '@(s.birth_date.HasValue ? s.birth_date.Value.ToString("yyyy-MM-dd") : "")', '@(s.citizen_id ?? "")')">
+                                        onclick="openEditModal(@s.id, '@s.full_name', '@s.email', '@(s.birth_date.HasValue ? s.birth_date.Value.ToString("yyyy-MM-dd") : "")', '@(s.citizen_id ?? "")', '@(s.phone ?? "")')">
                                     <i class="fas fa-edit"></i> Sửa
                                 </button>
                                 <button class="action-btn btn-delete"
@@ -104,7 +122,9 @@
                 }
                 @if (!Model.Staffs.Any())
                 {
-                    <tr><td colspan="6" class="no-data"><i class="fas fa-inbox"></i><br/>Chưa có nhân viên nào.</td></tr>
+                    <tr>
+                        <td colspan="6" class="no-data"><i class="fas fa-inbox"></i><br />Chưa có nhân viên nào.</td>
+                    </tr>
                 }
             </tbody>
         </table>
@@ -147,6 +167,10 @@
             <div class="form-group">
                 <label>Số CCCD</label>
                 <input type="text" id="add_citizenid" class="form-control" placeholder="012345678901" />
+            </div>
+            <div class="form-group">
+                <label>Số điện thoại</label>
+                <input type="text" id="add_phone" class="form-control" placeholder="0901234567" />
             </div>
             <div class="modal-actions">
                 <button class="btn btn-cancel" onclick="closeModal('addModal')">Hủy</button>
@@ -195,6 +219,10 @@
                 <label>Số CCCD</label>
                 <input type="text" id="edit_citizenid" class="form-control" />
             </div>
+            <div class="form-group">
+                <label>Số điện thoại</label>
+                <input type="text" id="edit_phone" class="form-control" />
+            </div>
             <div class="modal-actions">
                 <button class="btn btn-cancel" onclick="closeModal('editModal')">Hủy</button>
                 <button class="btn btn-primary" onclick="submitEdit()">
@@ -229,8 +257,49 @@
     </div>
 </div>
 
+<!-- Xem -->
+<div class="modal-overlay" id="viewModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-user"></i> Thông tin nhân viên</h3>
+            <button class="modal-close" onclick="closeModal('viewModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="view-info-grid">
+                <div class="view-info-item">
+                    <span class="view-label">Họ và tên</span>
+                    <span class="view-value" id="view_fullname"></span>
+                </div>
+                <div class="view-info-item">
+                    <span class="view-label">Email</span>
+                    <span class="view-value" id="view_email"></span>
+                </div>
+                <div class="view-info-item">
+                    <span class="view-label">Ngày sinh</span>
+                    <span class="view-value" id="view_birthdate"></span>
+                </div>
+                <div class="view-info-item">
+                    <span class="view-label">Số CCCD</span>
+                    <span class="view-value" id="view_citizenid"></span>
+                </div>
+                <div class="view-info-item">
+                    <span class="view-label">Số điện thoại</span>
+                    <span class="view-value" id="view_phone"></span>
+                </div>
+                <div class="view-info-item">
+                    <span class="view-label">Ngày tạo</span>
+                    <span class="view-value" id="view_createdat"></span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal('viewModal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-<script src="https://cdn.jsdelivr.net/npm/@@emailjs/browser@@4/dist/email.min.js"></script>
-<script src="~/js/staff.js" asp-append-version="true"></script>
-@Html.AntiForgeryToken()
+    <script src="https://cdn.jsdelivr.net/npm/@@emailjs/browser@@4/dist/email.min.js"></script>
+    <script src="~/js/staff.js" asp-append-version="true"></script>
+    @Html.AntiForgeryToken()
 }

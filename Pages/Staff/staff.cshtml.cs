@@ -14,15 +14,15 @@ namespace nhom1dotnet.Pages_Staff
         [BindProperty(SupportsGet = true)]
         public string SearchString { get; set; } = "";
 
-        public List<Staff> Staffs        { get; set; } = new();
-        public int         TotalStaff    { get; set; }
-        public string      SuccessMessage { get; set; } = "";
-        public string      ErrorMessage   { get; set; } = "";
+        public List<Staff> Staffs { get; set; } = new();
+        public int TotalStaff { get; set; }
+        public string SuccessMessage { get; set; } = "";
+        public string ErrorMessage { get; set; } = "";
 
         public async Task OnGetAsync(string? msg, string? err)
         {
             SuccessMessage = msg ?? "";
-            ErrorMessage   = err ?? "";
+            ErrorMessage = err ?? "";
 
             var query = _db.Staffs.AsQueryable();
 
@@ -32,12 +32,12 @@ namespace nhom1dotnet.Pages_Staff
                     s.email.Contains(SearchString) ||
                     (s.citizen_id != null && s.citizen_id.Contains(SearchString)));
 
-            Staffs     = await query.OrderBy(s => s.full_name).ToListAsync();
+            Staffs = await query.OrderBy(s => s.full_name).ToListAsync();
             TotalStaff = Staffs.Count;
         }
 
         public async Task<IActionResult> OnPostAddAsync(
-            string fullname, string email, string? birthdate, string? citizenid)
+            string fullname, string email, string? birthdate, string? citizenid, string? phone)
         {
             if (string.IsNullOrWhiteSpace(fullname) || string.IsNullOrWhiteSpace(email))
                 return RedirectToPage(new { err = "Vui lòng điền đầy đủ họ tên và email." });
@@ -52,10 +52,11 @@ namespace nhom1dotnet.Pages_Staff
 
             _db.Staffs.Add(new Staff
             {
-                full_name  = fullname.Trim(),
-                email      = email.Trim(),
+                full_name = fullname.Trim(),
+                email = email.Trim(),
                 birth_date = dob,
                 citizen_id = string.IsNullOrWhiteSpace(citizenid) ? null : citizenid.Trim(),
+                phone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim(),
                 created_at = DateTime.Now
             });
 
@@ -64,7 +65,7 @@ namespace nhom1dotnet.Pages_Staff
         }
 
         public async Task<IActionResult> OnPostEditAsync(
-            int id, string fullname, string email, string? birthdate, string? citizenid)
+            int id, string fullname, string email, string? birthdate, string? citizenid, string? phone)
         {
             var staff = await _db.Staffs.FindAsync(id);
             if (staff == null)
@@ -78,10 +79,12 @@ namespace nhom1dotnet.Pages_Staff
                 DateOnly.TryParse(birthdate, out var parsed))
                 dob = parsed;
 
-            staff.full_name  = fullname.Trim();
-            staff.email      = email.Trim();
+            staff.full_name = fullname.Trim();
+            staff.email = email.Trim();
             staff.birth_date = dob;
             staff.citizen_id = string.IsNullOrWhiteSpace(citizenid) ? null : citizenid.Trim();
+            staff.phone      = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+
 
             await _db.SaveChangesAsync();
             return RedirectToPage(new { msg = $"Đã cập nhật nhân viên \"{fullname}\" thành công." });

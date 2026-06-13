@@ -118,6 +118,7 @@ function openAddModal() {
     document.getElementById("add_email").value     = "";
     document.getElementById("add_birthdate").value = "";
     document.getElementById("add_citizenid").value = "";
+    document.getElementById("add_phone").value = "";
     document.getElementById("add_otp").value       = "";
     document.getElementById("otpGroup").style.display     = "none";
     document.getElementById("verifiedGroup").style.display = "none";
@@ -127,7 +128,7 @@ function openAddModal() {
     document.getElementById("addModal").classList.add("active");
 }
 
-function openEditModal(id, fullname, email, birthdate, citizenid) {
+function openEditModal(id, fullname, email, birthdate, citizenid, phone) {
     editOriginalEmail = email;
     editEmailVerified = false;
     editOtpCode = "";
@@ -136,13 +137,14 @@ function openEditModal(id, fullname, email, birthdate, citizenid) {
     document.getElementById("edit_email").value      = email;
     document.getElementById("edit_birthdate").value  = birthdate;
     document.getElementById("edit_citizenid").value  = citizenid;
+    document.getElementById("edit_phone").value = phone;
     document.getElementById("edit_otp").value        = "";
     document.getElementById("editOtpGroup").style.display     = "none";
     document.getElementById("editVerifiedGroup").style.display = "none";
     document.getElementById("editOtpHint").textContent = "";
     document.getElementById("btnEditSendOtp").disabled    = false;
     document.getElementById("btnEditSendOtp").textContent = "Gửi OTP";
-    document.getElementById("editModal").classList.add("active");
+    document.getElementById("editModal").classList.add("active");   
 }
 
 function openDeleteModal(id, name, email) {
@@ -156,10 +158,11 @@ function closeModal(id) {
 }
 
 function submitAdd() {
-    const fullname   = document.getElementById("add_fullname").value.trim();
-    const email      = document.getElementById("add_email").value.trim();
-    const birthdate  = document.getElementById("add_birthdate").value;
-    const citizenid  = document.getElementById("add_citizenid").value.trim();
+    const fullname  = document.getElementById("add_fullname").value.trim();
+    const email     = document.getElementById("add_email").value.trim();
+    const birthdate = document.getElementById("add_birthdate").value;
+    const citizenid = document.getElementById("add_citizenid").value.trim();
+    const phone     = document.getElementById("add_phone").value.trim();
 
     if (!fullname || !email) {
         alert("Vui lòng điền đầy đủ họ tên và email.");
@@ -169,8 +172,8 @@ function submitAdd() {
         alert("Vui lòng xác thực email bằng mã OTP trước khi lưu.");
         return;
     }
-    const form = createHiddenForm("/Staff/Index?handler=Add", {
-        fullname, email, birthdate, citizenid
+    const form = createHiddenForm("/Staff/staff?handler=Add", {
+        fullname, email, birthdate, citizenid, phone
     });
     form.submit();
 }
@@ -181,6 +184,7 @@ function submitEdit() {
     const email     = document.getElementById("edit_email").value.trim();
     const birthdate = document.getElementById("edit_birthdate").value;
     const citizenid = document.getElementById("edit_citizenid").value.trim();
+    const phone     = document.getElementById("edit_phone").value.trim();
 
     if (!fullname || !email) {
         alert("Vui lòng điền đầy đủ họ tên và email.");
@@ -190,16 +194,26 @@ function submitEdit() {
         alert("Email đã thay đổi. Vui lòng xác thực OTP cho email mới.");
         return;
     }
-    const form = createHiddenForm("/Staff/Index?handler=Edit", {
-        id, fullname, email, birthdate, citizenid
+    const form = createHiddenForm("/Staff/staff?handler=Edit", {
+        id, fullname, email, birthdate, citizenid, phone
     });
     form.submit();
 }
 
 function submitDelete() {
     const id = document.getElementById("delete_id").value;
-    const form = createHiddenForm("/Staff/Index?handler=Delete", { id });
+    const form = createHiddenForm("/Staff/staff?handler=Delete", { id });
     form.submit();
+}
+
+function openViewModal(id, fullname, email, birthdate, citizenid, phone, createdat) {
+    document.getElementById("view_fullname").textContent  = fullname;
+    document.getElementById("view_email").textContent     = email;
+    document.getElementById("view_birthdate").textContent = birthdate;
+    document.getElementById("view_citizenid").textContent = citizenid;
+    document.getElementById("view_phone").textContent     = phone;
+    document.getElementById("view_createdat").textContent = createdat;
+    document.getElementById("viewModal").classList.add("active");
 }
 
 function createHiddenForm(action, fields) {

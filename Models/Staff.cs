@@ -17,6 +17,8 @@ namespace nhom1dotnet.Models
         [Required]
         public string email { get; set; } = "";
 
+        public string? phone { get; set; }
+
         public string? citizen_id { get; set; }
 
         public DateTime created_at { get; set; } = DateTime.Now;
