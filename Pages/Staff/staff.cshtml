@@ -3,12 +3,13 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/staff.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 }
 
 @{
     ViewData["Title"] = "Quản lý nhân viên";
 
-    string MaskKeep2(string? val)
+        string MaskKeep2(string? val)
     {
         if (string.IsNullOrEmpty(val)) return "—";
         if (val.Length <= 2) return val;
@@ -23,22 +24,18 @@
 }
 
 <div class="staff-dashboard">
-
-    <!-- Header -->
     <div class="dashboard-header">
         <div>
-            <h1 class="page-title"><i class="fas fa-id-card"></i> Quản lý nhân viên</h1>
-            <p class="page-subtitle">Thêm, chỉnh sửa và xóa thông tin nhân viên</p>
+            <h1 class="page-title"><i class="fas fa-user-tie"></i> Quản lý nhân viên</h1>
         </div>
-        <button class="btn btn-primary btn-add" onclick="openAddModal()">
-            <i class="fas fa-plus"></i> Thêm nhân viên
-        </button>
+        <div>
+            <button class="btn btn-primary btn-create-staff" onclick="openAddModal()">+ Thêm nhân viên</button>
+        </div>
     </div>
 
-    <!-- Stats -->
     <div class="summary-cards">
         <div class="stat-card">
-            <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+            <div class="stat-icon blue"><i class="fas fa-user-tie"></i></div>
             <div class="stat-content">
                 <p class="stat-label">Tổng nhân viên</p>
                 <h2 class="stat-value">@Model.TotalStaff</h2>
@@ -46,7 +43,6 @@
         </div>
     </div>
 
-    <!-- Alerts -->
     @if (!string.IsNullOrEmpty(Model.SuccessMessage))
     {
         <div class="alert alert-success alert-dismissible">
@@ -62,59 +58,80 @@
         </div>
     }
 
-    <!-- Search -->
     <div class="search-panel">
         <form method="get" class="search-form">
-            <i class="fas fa-search search-icon"></i>
             <input asp-for="SearchString" class="form-control search-input"
-                   placeholder="Tìm theo tên, email hoặc CCCD..." />
+                   placeholder="Tìm kiếm theo tên, số điện thoại hoặc email..." />
             <button type="submit" class="btn btn-search">Tìm kiếm</button>
         </form>
     </div>
 
-    <!-- Table -->
     <div class="table-responsive staff-table-wrapper">
         <table class="table staff-table">
             <thead>
                 <tr>
                     <th>Nhân viên</th>
-                    <th>Email</th>
+                    <th>Liên hệ</th>
+                    <th>CMND/CCCD</th>
                     <th>Ngày sinh</th>
-                    <th>CCCD</th>
-                    <th>Số điện thoại</th>
+                    <th>Ngày tạo</th>
                     <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var s in Model.Staffs)
+                @foreach (var item in Model.Staffs)
                 {
                     <tr>
                         <td>
                             <div class="staff-name-cell">
-                                <div class="staff-avatar avatar-staff">
-                                    @(string.Join("", s.full_name.Split(' ').Where(w => w.Length > 0).Select(w =>
-                                w[0]).Take(2)).ToUpper())
+                                <div class="staff-avatar">@item.Initials</div>
+                                <div>
+                                    <div class="staff-name">@item.FullName</div>
                                 </div>
-                                <span class="staff-name">@s.full_name</span>
                             </div>
                         </td>
-                        <td><span class="staff-email">@MaskKeep2(s.email)</span></td>
-                        <td>@(s.birth_date.HasValue ? MaskFull(s.birth_date.Value.ToString("dd/MM/yyyy")) : "—")</td>
-                        <td>@MaskKeep2(s.citizen_id)</td>
-                        <td>@MaskKeep2(s.phone)</td>
+                        <td>
+                            <div class="contact-cell">
+                                <span class="contact-phone">@MaskKeep2(item.Phone)</span>
+                                <span class="contact-email">@MaskKeep2(item.Email)</span>
+                            </div>
+                        </td>
+                        <td>@MaskKeep2(item.CitizenId)</td>
+                        <td>@MaskFull(item.BirthDate.HasValue ? item.BirthDate.Value.ToString("yyyy-MM-dd") : "-")</td>
+                        <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="action-btn btn-view"
-                                        onclick="openViewModal(@s.id, '@s.full_name', '@s.email', '@(s.birth_date.HasValue ? s.birth_date.Value.ToString("dd/MM/yyyy") : "—")', '@(s.citizen_id ?? "—")', '@(s.phone ?? "—")', '@s.created_at.ToString("dd/MM/yyyy")')">
-                                    <i class="fas fa-eye"></i> Xem
+                                <button class="action-link view" type="button"
+                                        data-id="@item.Id"
+                                        data-fullname="@item.FullName"
+                                        data-phone="@item.Phone"
+                                        data-email="@item.Email"
+                                        data-citizenid="@item.CitizenId"
+                                        data-birthdate="@(item.BirthDate.HasValue ? item.BirthDate.Value.ToString("yyyy-MM-dd") : "")"
+                                        data-createdat="@item.CreatedAt.ToString("yyyy-MM-dd")"
+                                        onclick="openViewModal(this)">
+                                    <i class="bi bi-eye-fill"></i>
+                                    <span>Xem</span>
                                 </button>
-                                <button class="action-btn btn-edit"
-                                        onclick="openEditModal(@s.id, '@s.full_name', '@s.email', '@(s.birth_date.HasValue ? s.birth_date.Value.ToString("yyyy-MM-dd") : "")', '@(s.citizen_id ?? "")', '@(s.phone ?? "")')">
-                                    <i class="fas fa-edit"></i> Sửa
+
+                                <button class="action-link edit" type="button"
+                                        data-id="@item.Id"
+                                        data-fullname="@item.FullName"
+                                        data-phone="@item.Phone"
+                                        data-email="@item.Email"
+                                        data-citizenid="@item.CitizenId"
+                                        data-birthdate="@(item.BirthDate.HasValue ? item.BirthDate.Value.ToString("yyyy-MM-dd") : "")"
+                                        onclick="openEditModal(this)">
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span>Sửa</span>
                                 </button>
-                                <button class="action-btn btn-delete"
-                                        onclick="openDeleteModal(@s.id, '@s.full_name', '@s.email')">
-                                    <i class="fas fa-trash"></i> Xóa
+
+                                <button class="action-link delete" type="button"
+                                        data-id="@item.Id"
+                                        data-fullname="@item.FullName"
+                                        onclick="openDeleteModal(this)">
+                                    <i class="bi bi-trash-fill"></i>
+                                    <span>Xóa</span>
                                 </button>
                             </div>
                         </td>
@@ -123,7 +140,7 @@
                 @if (!Model.Staffs.Any())
                 {
                     <tr>
-                        <td colspan="6" class="no-data"><i class="fas fa-inbox"></i><br />Chưa có nhân viên nào.</td>
+                        <td colspan="6" style="text-align:center;padding:32px;color:#6b7280;">Chưa có nhân viên nào.</td>
                     </tr>
                 }
             </tbody>
@@ -131,114 +148,159 @@
     </div>
 </div>
 
-<!-- Thêm -->
+<!-- ===== MODAL XEM ===== -->
+<div class="modal-overlay" id="viewModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-tie"></i> Chi tiết nhân viên</h3>
+            <button class="modal-close" type="button" onclick="closeModal('viewModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="view-avatar-row">
+                <div class="view-avatar" id="view_initials"></div>
+                <div>
+                    <div class="view-fullname" id="view_fullname"></div>
+                    <div class="view-sub" id="view_email_sub"></div>
+                </div>
+            </div>
+            <div class="view-grid">
+                <div class="view-field">
+                    <span class="view-label">Số điện thoại</span>
+                    <span class="view-value" id="view_phone"></span>
+                </div>
+                <div class="view-field">
+                    <span class="view-label">Email</span>
+                    <span class="view-value" id="view_email"></span>
+                </div>
+                <div class="view-field">
+                    <span class="view-label">CMND/CCCD</span>
+                    <span class="view-value" id="view_citizenid"></span>
+                </div>
+                <div class="view-field">
+                    <span class="view-label">Ngày sinh</span>
+                    <span class="view-value" id="view_birthdate"></span>
+                </div>
+                <div class="view-field">
+                    <span class="view-label">Ngày tạo</span>
+                    <span class="view-value" id="view_createdat"></span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" type="button" onclick="closeModal('viewModal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL THÊM ===== -->
 <div class="modal-overlay" id="addModal">
     <div class="modal-box">
         <div class="modal-header">
             <h3><i class="fas fa-user-plus"></i> Thêm nhân viên</h3>
-            <button class="modal-close" onclick="closeModal('addModal')">×</button>
+            <button class="modal-close" type="button" onclick="closeModal('addModal')">×</button>
         </div>
         <div class="modal-body">
-            <div class="form-group">
-                <label>Họ và tên <span class="required">*</span></label>
-                <input type="text" id="add_fullname" class="form-control" placeholder="Nguyễn Văn A" />
-            </div>
-            <div class="form-group">
-                <label>Ngày sinh</label>
-                <input type="date" id="add_birthdate" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>Email <span class="required">*</span></label>
-                <div class="input-otp-row">
-                    <input type="email" id="add_email" class="form-control" placeholder="example@gmail.com" />
-                    <button class="btn btn-otp" id="btnSendOtp" onclick="sendOtp()">Gửi OTP</button>
+            <form method="post" asp-page-handler="Add" id="addForm">
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <label>Họ và tên <span class="required">*</span></label>
+                    <input type="text" name="fullname" class="form-control" placeholder="Nguyễn Văn A" required />
                 </div>
-                <small class="hint-text" id="otpHint"></small>
-            </div>
-            <div class="form-group" id="otpGroup" style="display:none">
-                <label>Mã OTP <span class="required">*</span></label>
-                <input type="text" id="add_otp" class="form-control otp-input" maxlength="6"
-                       placeholder="Nhập mã 6 số" />
-                <small class="hint-text">OTP có hiệu lực trong 2 phút.</small>
-            </div>
-            <div class="form-group" id="verifiedGroup" style="display:none">
-                <div class="verified-badge"><i class="fas fa-check-circle"></i> Email đã xác thực</div>
-            </div>
-            <div class="form-group">
-                <label>Số CCCD</label>
-                <input type="text" id="add_citizenid" class="form-control" placeholder="012345678901" />
-            </div>
-            <div class="form-group">
-                <label>Số điện thoại</label>
-                <input type="text" id="add_phone" class="form-control" placeholder="0901234567" />
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-cancel" onclick="closeModal('addModal')">Hủy</button>
-                <button class="btn btn-primary" onclick="submitAdd()">
-                    <i class="fas fa-save"></i> Lưu nhân viên
-                </button>
-            </div>
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <div class="email-otp-row">
+                        <input type="email" name="email" id="add_email" class="form-control" placeholder="example@gmail.com" required />
+                        <button type="button" class="btn-send-otp" id="btnAddSendOtp" onclick="sendAddOtp()">Gửi OTP</button>
+                    </div>
+                </div>
+                <div class="form-group otp-group" id="addOtpGroup" style="display:none;">
+                    <label>Mã OTP <span class="required">*</span></label>
+                    <input type="text" id="add_otp_input" class="form-control" placeholder="Nhập mã 6 chữ số" maxlength="6" />
+                    <div class="otp-timer" id="addOtpTimer"></div>
+                    <div class="otp-status" id="addOtpStatus"></div>
+                    <input type="hidden" name="otp_verified" id="add_otp_verified" value="false" />
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="text" name="phone" class="form-control" placeholder="0901234567" />
+                </div>
+                <div class="form-group">
+                    <label>CMND/CCCD</label>
+                    <input type="text" name="citizenid" class="form-control" placeholder="012345678901" />
+                </div>
+                <div class="form-group">
+                    <label>Ngày sinh</label>
+                    <input type="date" name="birthdate" class="form-control" />
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('addModal')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Lưu nhân viên
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<!-- Sửa -->
+<!-- ===== MODAL SỬA ===== -->
 <div class="modal-overlay" id="editModal">
     <div class="modal-box">
         <div class="modal-header">
             <h3><i class="fas fa-user-edit"></i> Sửa nhân viên</h3>
-            <button class="modal-close" onclick="closeModal('editModal')">×</button>
+            <button class="modal-close" type="button" onclick="closeModal('editModal')">×</button>
         </div>
         <div class="modal-body">
-            <input type="hidden" id="edit_id" />
-            <div class="form-group">
-                <label>Họ và tên <span class="required">*</span></label>
-                <input type="text" id="edit_fullname" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>Ngày sinh</label>
-                <input type="date" id="edit_birthdate" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>Email <span class="required">*</span></label>
-                <div class="input-otp-row">
-                    <input type="email" id="edit_email" class="form-control" />
-                    <button class="btn btn-otp" id="btnEditSendOtp" onclick="sendEditOtp()">Gửi OTP</button>
+            <form method="post" asp-page-handler="Edit" id="editForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="edit_id" />
+                <div class="form-group">
+                    <label>Họ và tên <span class="required">*</span></label>
+                    <input type="text" name="fullname" id="edit_fullname" class="form-control" required />
                 </div>
-                <small class="hint-text" id="editOtpHint"></small>
-            </div>
-            <div class="form-group" id="editOtpGroup" style="display:none">
-                <label>Mã OTP <span class="required">*</span></label>
-                <input type="text" id="edit_otp" class="form-control otp-input" maxlength="6"
-                       placeholder="Nhập mã 6 số" />
-            </div>
-            <div class="form-group" id="editVerifiedGroup" style="display:none">
-                <div class="verified-badge"><i class="fas fa-check-circle"></i> Email đã xác thực</div>
-            </div>
-            <div class="form-group">
-                <label>Số CCCD</label>
-                <input type="text" id="edit_citizenid" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>Số điện thoại</label>
-                <input type="text" id="edit_phone" class="form-control" />
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-cancel" onclick="closeModal('editModal')">Hủy</button>
-                <button class="btn btn-primary" onclick="submitEdit()">
-                    <i class="fas fa-save"></i> Cập nhật
-                </button>
-            </div>
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <div class="email-otp-row">
+                        <input type="email" name="email" id="edit_email" class="form-control" required />
+                        <button type="button" class="btn-send-otp" id="btnEditSendOtp" onclick="sendEditOtp()">Gửi OTP</button>
+                    </div>
+                </div>
+                <div class="form-group otp-group" id="editOtpGroup" style="display:none;">
+                    <label>Mã OTP <span class="required">*</span></label>
+                    <input type="text" id="edit_otp_input" class="form-control" placeholder="Nhập mã 6 chữ số" maxlength="6" />
+                    <div class="otp-timer" id="editOtpTimer"></div>
+                    <div class="otp-status" id="editOtpStatus"></div>
+                    <input type="hidden" name="otp_verified" id="edit_otp_verified" value="false" />
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="text" name="phone" id="edit_phone" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>CMND/CCCD</label>
+                    <input type="text" name="citizenid" id="edit_citizenid" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Ngày sinh</label>
+                    <input type="date" name="birthdate" id="edit_birthdate" class="form-control" />
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('editModal')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Cập nhật
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<!-- Xóa -->
+<!-- ===== MODAL XÓA ===== -->
 <div class="modal-overlay" id="deleteModal">
     <div class="modal-box modal-sm">
         <div class="modal-header danger">
             <h3><i class="fas fa-user-minus"></i> Xác nhận xóa</h3>
-            <button class="modal-close" onclick="closeModal('deleteModal')">×</button>
+            <button class="modal-close" type="button" onclick="closeModal('deleteModal')">×</button>
         </div>
         <div class="modal-body">
             <div class="delete-warning">
@@ -246,60 +308,21 @@
                 <p>Bạn có chắc muốn xóa nhân viên <strong id="delete_name"></strong>?</p>
                 <p class="delete-note">Hành động này không thể hoàn tác.</p>
             </div>
-            <input type="hidden" id="delete_id" />
-            <div class="modal-actions">
-                <button class="btn btn-cancel" onclick="closeModal('deleteModal')">Hủy</button>
-                <button class="btn btn-danger" onclick="submitDelete()">
-                    <i class="fas fa-trash"></i> Xóa nhân viên
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Xem -->
-<div class="modal-overlay" id="viewModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3><i class="fas fa-user"></i> Thông tin nhân viên</h3>
-            <button class="modal-close" onclick="closeModal('viewModal')">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="view-info-grid">
-                <div class="view-info-item">
-                    <span class="view-label">Họ và tên</span>
-                    <span class="view-value" id="view_fullname"></span>
+            <form method="post" asp-page-handler="Delete">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="delete_id" />
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('deleteModal')">Hủy</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xóa nhân viên
+                    </button>
                 </div>
-                <div class="view-info-item">
-                    <span class="view-label">Email</span>
-                    <span class="view-value" id="view_email"></span>
-                </div>
-                <div class="view-info-item">
-                    <span class="view-label">Ngày sinh</span>
-                    <span class="view-value" id="view_birthdate"></span>
-                </div>
-                <div class="view-info-item">
-                    <span class="view-label">Số CCCD</span>
-                    <span class="view-value" id="view_citizenid"></span>
-                </div>
-                <div class="view-info-item">
-                    <span class="view-label">Số điện thoại</span>
-                    <span class="view-value" id="view_phone"></span>
-                </div>
-                <div class="view-info-item">
-                    <span class="view-label">Ngày tạo</span>
-                    <span class="view-value" id="view_createdat"></span>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-cancel" onclick="closeModal('viewModal')">Đóng</button>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/@@emailjs/browser@@4/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@emailjs/browser@4/dist/email.min.js"></script>
     <script src="~/js/staff.js" asp-append-version="true"></script>
-    @Html.AntiForgeryToken()
 }
