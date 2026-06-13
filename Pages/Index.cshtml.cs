@@ -16,6 +16,7 @@ namespace nhom1dotnet.Pages
         }
 
         // Thống kê
+        public int TotalRooms { get; set; }
         public int TotalBookings { get; set; }
         public int TotalCustomers { get; private set; }
         public decimal TotalRevenue { get; set; }
@@ -36,6 +37,7 @@ namespace nhom1dotnet.Pages
             }
 
             // Thống kê tổng quan
+            TotalRooms = _context.Rooms.Count();
             TotalBookings = _context.Bookings.Count();
             TotalCustomers = _context.Customers.Count();
             TotalRevenue = _context.Bookings

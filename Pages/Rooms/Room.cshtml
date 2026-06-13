@@ -20,7 +20,7 @@
     string StatusLabel(string? s) => s switch {
         "available"   => "Trống",
         "booked"      => "Đã đặt",
-        "occupied"    => "Đang thuê",
+        "occupied"    => "Đang ở",
         "cleaning"    => "Dọn dẹp",
         "maintenance" => "Bảo trì",
         _             => s ?? ""
@@ -209,7 +209,6 @@
                 <select id="add_status" class="form-control">
                     <option value="available">Trống</option>
                     <option value="cleaning">Dọn dẹp</option>
-                    <option value="maintenance">Bảo trì</option>
                 </select>
             </div>
             <div class="modal-actions">
@@ -259,7 +258,7 @@
                 <select id="edit_status" class="form-control">
                     <option value="available">Trống</option>
                     <option value="booked">Đã đặt</option>
-                    <option value="occupied">Đang thuê</option>
+                    <option value="occupied">Đang ở</option>
                     <option value="cleaning">Dọn dẹp</option>
                     <option value="maintenance">Bảo trì</option>
                 </select>

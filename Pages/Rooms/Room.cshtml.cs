@@ -59,6 +59,30 @@ namespace nhom1dotnet.Pages.Rooms
                 query = query.Where(r => r.status == StatusFilter);
 
             Rooms = await query.OrderBy(r => r.floor_number).ThenBy(r => r.room_number).ToListAsync();
+
+            // ── Tự động tính status từ Bookings ──
+            var today = DateTime.Today;
+
+            var activeBookings = await _db.Bookings
+                .Where(b => b.status != "Đã hủy" && b.status != "Chờ xác nhận")
+                .ToListAsync();
+
+            foreach (var room in Rooms)
+            {
+                var booking = activeBookings.FirstOrDefault(b => b.room_id == room.id);
+
+                if (booking == null || booking.status == "Chờ xác nhận")
+                    room.status = "available";
+                else if (booking.status == "Đã Check-in")
+                    room.status = "occupied";
+                else if (booking.status == "Đã Check-out")
+                    room.status = "cleaning";
+                else if (booking.status == "Đã xác nhận")
+                    room.status = "booked";
+                else
+                    room.status = "available";
+            }
+            await _db.SaveChangesAsync(); 
         }
 
         // ── THÊM ─────────────────────────────────────────────
@@ -131,5 +155,7 @@ namespace nhom1dotnet.Pages.Rooms
             await _db.SaveChangesAsync();
             return RedirectToPage(new { msg = $"Đã xóa phòng {room.room_number} thành công." });
         }
+
+        
     }
 }

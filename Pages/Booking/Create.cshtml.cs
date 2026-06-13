@@ -67,6 +67,9 @@ namespace nhom1dotnet.Pages.Booking
             Booking.created_at = DateTime.Now;//tg hiện tại
 
             _context.Bookings.Add(Booking);//lưu vào context 
+            // ── thêm 2 dòng này ──
+            room.status = "booked";
+            _context.Rooms.Update(room);
             await _context.SaveChangesAsync();//insert lưu vào db 
 
             return RedirectToPage("/Booking/Booking");
