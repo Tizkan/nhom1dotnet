@@ -16,8 +16,7 @@ public class VnPayService
         var hashSecret = _config["Vnpay:HashSecret"];
         var baseUrl = _config["Vnpay:BaseUrl"];
         var returnUrl = _config["Vnpay:ReturnUrl"];
-        var ip = context.Connection.RemoteIpAddress?.ToString();
-        if (string.IsNullOrEmpty(ip) || ip == "::1")
+        var ip = context.Connection.RemoteIpAddress?.ToString(); 
             ip = "127.0.0.1";
 
         var vnpParams = new SortedDictionary<string, string>
@@ -36,13 +35,12 @@ public class VnPayService
             { "vnp_ReturnUrl", returnUrl },
             { "vnp_TxnRef", $"{bookingId}_{DateTime.Now.Ticks}" },
         };
-        // build query cho URL - có encode
+    
         var query = string.Join("&", vnpParams.Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"));
 
-        // build raw data cho hash - KHÔNG encode
         var hashData = query;
 
-        var secureHash = HmacSHA512(hashSecret, hashData); // hash từ raw
+        var secureHash = HmacSHA512(hashSecret, hashData); 
 
         Console.WriteLine("HASH_SECRET: " + hashSecret);
         Console.WriteLine("HASH_DATA: " + hashData);

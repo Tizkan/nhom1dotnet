@@ -14,9 +14,8 @@ namespace nhom1dotnet.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<RoomType> RoomTypes { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Payment> Payments {get; set;}
         public DbSet<Bookings> Bookings { get; set; }
-        public DbSet<Payment> Payments { get; set; }
-        public DbSet<Service> Services { get; set; }
         public DbSet<Staff> Staffs { get; set; }
     }
 }

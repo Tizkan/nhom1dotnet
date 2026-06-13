@@ -14,27 +14,27 @@ public class ReportModel : PageModel
     // KPI  
     public decimal RevenueThisMonth { get; set; }
     public decimal RevenueLastMonth { get; set; }
-    public double  OccupancyRate    { get; set; }
-    public double  OccupancyLast    { get; set; }
-    public double  AvgStayNights    { get; set; }
-    public double  AvgStayLast      { get; set; }
+    public double OccupancyRate { get; set; }
+    public double OccupancyLast { get; set; }
+    public double AvgStayNights { get; set; }
+    public double AvgStayLast { get; set; }
 
     // Charts
-    public List<MonthStat>     MonthlyStats  { get; set; } = [];
-    public int                 BookingStandard { get; set; }
-    public int                 BookingDeluxe   { get; set; }
-    public int                 BookingSuite    { get; set; }
+    public List<MonthStat> MonthlyStats { get; set; } = [];
+    public int BookingStandard { get; set; }
+    public int BookingDeluxe { get; set; }
+    public int BookingSuite { get; set; }
 
     // Lists
-    public List<VipCustomer>   TopCustomers { get; set; } = [];
-    public List<BookingSource> Sources      { get; set; } = [];
+    public List<VipCustomer> TopCustomers { get; set; } = [];
+    public List<BookingSource> Sources { get; set; } = [];
 
     // ──────────────────────────────────────────────────────────
     public async Task OnGetAsync()
     {
-        var now              = DateTime.Now;
-        var startThisMonth   = new DateTime(now.Year, now.Month, 1);
-        var startLastMonth   = startThisMonth.AddMonths(-1);
+        var now = DateTime.Now;
+        var startThisMonth = new DateTime(now.Year, now.Month, 1);
+        var startLastMonth = startThisMonth.AddMonths(-1);
 
         await LoadRevenueAsync(startThisMonth, startLastMonth);
         await LoadOccupancyAsync(now, startThisMonth, startLastMonth);
@@ -60,11 +60,11 @@ public class ReportModel : PageModel
 
     private async Task LoadOccupancyAsync(DateTime now, DateTime startThis, DateTime startLast)
     {
-        var total        = await _db.Rooms.CountAsync();
-        var occupiedNow  = await _db.Bookings.CountAsync(b => b.check_in <= now && b.check_out >= now);
+        var total = await _db.Rooms.CountAsync();
+        var occupiedNow = await _db.Bookings.CountAsync(b => b.check_in <= now && b.check_out >= now);
         var occupiedLast = await _db.Bookings.CountAsync(b => b.check_in <= startThis.AddDays(-1) && b.check_out >= startLast);
 
-        OccupancyRate = total > 0 ? Math.Round((double)occupiedNow  / total * 100, 1) : 0;
+        OccupancyRate = total > 0 ? Math.Round((double)occupiedNow / total * 100, 1) : 0;
         OccupancyLast = total > 0 ? Math.Round((double)occupiedLast / total * 100, 1) : 0;
     }
 
@@ -81,15 +81,15 @@ public class ReportModel : PageModel
             .ToListAsync();
 
         AvgStayNights = staysThis.Any() ? Math.Round(staysThis.Average(), 1) : 0;
-        AvgStayLast   = staysLast.Any() ? Math.Round(staysLast.Average(), 1) : 0;
+        AvgStayLast = staysLast.Any() ? Math.Round(staysLast.Average(), 1) : 0;
     }
 
-    private async Task LoadMonthlyStatsAsync(DateTime startThisMonth)
+    private async Task LoadMonthlyStatsAsync(DateTime startThisMonth)   
     {
         for (int i = 5; i >= 0; i--)
         {
             var start = startThisMonth.AddMonths(-i);
-            var end   = start.AddMonths(1);
+            var end = start.AddMonths(1);
 
             var revenue = await _db.Payments
                 .Where(p => p.status == "paid" && p.payment_date >= start && p.payment_date < end)
@@ -100,9 +100,9 @@ public class ReportModel : PageModel
 
             MonthlyStats.Add(new MonthStat
             {
-                Label   = $"T{start.Month}",
+                Label = $"T{start.Month}",
                 Revenue = (double)(revenue / 1_000_000),
-                Count   = count
+                Count = count
             });
         }
     }
@@ -114,8 +114,8 @@ public class ReportModel : PageModel
             .ToListAsync();
 
         BookingStandard = bookings.Count(b => b.Room?.RoomType?.name == "Standard");
-        BookingDeluxe   = bookings.Count(b => b.Room?.RoomType?.name == "Deluxe");
-        BookingSuite    = bookings.Count(b => b.Room?.RoomType?.name == "Suite");
+        BookingDeluxe = bookings.Count(b => b.Room?.RoomType?.name == "Deluxe");
+        BookingSuite = bookings.Count(b => b.Room?.RoomType?.name == "Suite");
 
         // Fallback nếu chưa có dữ liệu
         if (BookingStandard + BookingDeluxe + BookingSuite == 0)
@@ -129,9 +129,9 @@ public class ReportModel : PageModel
             .GroupBy(b => new { b.customer_id, b.Customer.full_name })
             .Select(g => new VipCustomer
             {
-                Name         = g.Key.full_name,
+                Name = g.Key.full_name,
                 BookingCount = g.Count(),
-                TotalSpent   = g.Sum(b => b.total_amount ?? 0)
+                TotalSpent = g.Sum(b => b.total_amount ?? 0)
             })
             .OrderByDescending(v => v.TotalSpent)
             .Take(5)
@@ -154,24 +154,24 @@ public class ReportModel : PageModel
     public record MonthStat(string Label = "", double Revenue = 0, int Count = 0)
     {
         public MonthStat() : this("", 0, 0) { }
-        public string Label   { get; set; } = Label;
+        public string Label { get; set; } = Label;
         public double Revenue { get; set; } = Revenue;
-        public int    Count   { get; set; } = Count;
+        public int Count { get; set; } = Count;
     }
 
     public record VipCustomer(string Name = "", int BookingCount = 0, decimal TotalSpent = 0)
     {
         public VipCustomer() : this("", 0, 0) { }
-        public string  Name         { get; set; } = Name;
-        public int     BookingCount { get; set; } = BookingCount;
-        public decimal TotalSpent   { get; set; } = TotalSpent;
+        public string Name { get; set; } = Name;
+        public int BookingCount { get; set; } = BookingCount;
+        public decimal TotalSpent { get; set; } = TotalSpent;
     }
 
     public record BookingSource(string Name = "", int Count = 0, int Percent = 0)
     {
         public BookingSource() : this("", 0, 0) { }
-        public string Name    { get; set; } = Name;
-        public int    Count   { get; set; } = Count;
-        public int    Percent { get; set; } = Percent;
+        public string Name { get; set; } = Name;
+        public int Count { get; set; } = Count;
+        public int Percent { get; set; } = Percent;
     }
 }

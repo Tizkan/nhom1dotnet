@@ -16,18 +16,18 @@ namespace nhom1dotnet.Pages.Booking
 
         public async Task OnGetAsync()
         {
-            var responseCode = Request.Query["vnp_ResponseCode"];
+            var responseCode = Request.Query["vnp_ResponseCode"];   
             var txnRef = Request.Query["vnp_TxnRef"].ToString();
-            var bookingIdStr = txnRef.Split('_')[0]; // ✅ thêm dòng này
+            var bookingIdStr = txnRef.Split('_')[0]; 
 
             if (responseCode == "00")
             {
                 IsSuccess = true;
                 Message = "Thanh toán thành công!";
 
-                if (int.TryParse(bookingIdStr, out int bookingId)) // ✅ đổi txnRef → bookingIdStr
+                if (int.TryParse(bookingIdStr, out int bookingId)) 
                 {
-                    var booking = await _context.Bookings.FindAsync(bookingId);
+                    var booking = await _context.Bookings.FindAsync(bookingId); 
                     if (booking != null)
                     {
                         booking.status = "Đã xác nhận";

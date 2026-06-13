@@ -21,11 +21,6 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
-<<<<<<< HEAD
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '712b8e60-5340-11f1-84e7-f426791b2ad2:1-2';
-
-=======
->>>>>>> 0a2824f02deeb788ac66ab3d28ff5fdd6f324bcb
 --
 -- Table structure for table `booking_services`
 --
