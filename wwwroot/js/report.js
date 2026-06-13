@@ -7,7 +7,7 @@
     const pieLabels = JSON.parse(el.dataset.pieLabels || '[]');
     const pieData   = JSON.parse(el.dataset.pie       || '[]');
 
-    // ── Bar chart: Doanh thu 6 tháng 
+    // ── Doanh thu 6 tháng 
     const barCanvas = document.getElementById('barChart');
     if (barCanvas) {
         new Chart(barCanvas, {
@@ -68,7 +68,7 @@
         });
     }
 
-    // ── Pie chart: Phân bổ loại phòng
+    // ── Phân bổ loại phòng
     const pieCanvas = document.getElementById('pieChart');
     if (pieCanvas) {
         new Chart(pieCanvas, {
