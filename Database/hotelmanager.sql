@@ -21,6 +21,8 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '712b8e60-5340-11f1-84e7-f426791b2ad2:1-80';
+
 --
 -- Table structure for table `booking_services`
 --
@@ -240,6 +242,7 @@ CREATE TABLE `staffs` (
   `birth_date` date DEFAULT NULL,
   `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `citizen_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_staffs_email` (`email`)
@@ -252,7 +255,7 @@ CREATE TABLE `staffs` (
 
 LOCK TABLES `staffs` WRITE;
 /*!40000 ALTER TABLE `staffs` DISABLE KEYS */;
-INSERT INTO `staffs` VALUES (1,'Nguyen Thi Lan','1995-03-15','lan.nv@hotel.com','034195001234','2026-06-07 09:55:38'),(2,'Tran Van Minh','1998-07-22','minh.tv@hotel.com','079198005678','2026-06-07 09:55:38'),(3,'Le Thi Hoa','2000-01-10','hoa.lt@hotel.com','45651235487','2026-06-07 09:55:38'),(4,'skibibi toilet','2004-02-11','dongphung360@gmail.com','12345678941','2026-06-07 09:59:48');
+INSERT INTO `staffs` VALUES (4,'skibibi toilet','2004-02-11','dong4651050060@st.qnu.edu.vn','12345678941','0123456789','2026-06-07 09:59:48');
 /*!40000 ALTER TABLE `staffs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -294,4 +297,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-08  8:41:07
+-- Dump completed on 2026-06-13 12:50:04
