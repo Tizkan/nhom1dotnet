@@ -119,22 +119,6 @@
         }
     </div>
 
-    <div class="chart-card">
-        <h3>Nguồn đặt phòng</h3>
-        @foreach (var s in Model.Sources)
-        {
-            <div class="source-item">
-                <div class="source-header">
-                    <span class="source-name">@s.Name</span>
-                    <span class="source-meta">@s.Count đơn (@s.Percent%)</span>
-                </div>
-                <div class="source-bar-bg">
-                    <div class="source-bar-fill" style="width: @s.Percent%"></div>
-                </div>
-            </div>
-        }
-    </div>
-
 </div>
 
 @section Scripts {
