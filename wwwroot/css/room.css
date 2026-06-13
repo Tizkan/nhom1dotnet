@@ -290,3 +290,41 @@
     .room-table-wrap { overflow-x: auto; }
     .room-table { min-width: 640px; }
 }
+
+/*Booking-Starts*/
+.booking-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.booking-stats .stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-left: 4px solid transparent;
+}
+
+.booking-stats .stat-card.total    { border-left-color: #2563eb; }
+.booking-stats .stat-card.standard { border-left-color: #f59e0b; }
+.booking-stats .stat-card.deluxe   { border-left-color: #22c55e; }
+.booking-stats .stat-card.suite    { border-left-color: #a855f7; }
+
+.booking-stats .stat-title {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.booking-stats .stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111;
+    margin-left: auto;
+}

@@ -62,6 +62,31 @@
 }
 
 <!-- ── FILTER ─────────────────────────────────────── -->
+<div class="booking-stats">
+
+    <div class="stat-card total">
+        <div class="stat-title">Tổng số phòng</div>
+        <div class="stat-number">@Model.Rooms.Count()</div>
+    </div>
+
+    <div class="stat-card standard">
+        <div class="stat-title">Standard</div>
+        <div class="stat-number">@Model.Rooms.Count(r => r.RoomType?.name == "Standard")</div>
+    </div>
+
+    <div class="stat-card deluxe">
+        <div class="stat-title">Deluxe</div>
+        <div class="stat-number">@Model.Rooms.Count(r => r.RoomType?.name == "Deluxe")</div>
+    </div>
+
+    <div class="stat-card suite">
+        <div class="stat-title">Suite</div>
+        <div class="stat-number">@Model.Rooms.Count(r => r.RoomType?.name == "Suite")</div>
+    </div>
+
+</div>
+
+<!-- ── FILTER ─────────────────────────────────────── -->
 <form method="get">
     <div class="filter-panel">
         <div class="search-wrap">
@@ -183,8 +208,6 @@
                 <label>Trạng thái <span class="req">*</span></label>
                 <select id="add_status" class="form-control">
                     <option value="available">Trống</option>
-                    <option value="booked">Đã đặt</option>
-                    <option value="occupied">Đang thuê</option>
                     <option value="cleaning">Dọn dẹp</option>
                     <option value="maintenance">Bảo trì</option>
                 </select>
