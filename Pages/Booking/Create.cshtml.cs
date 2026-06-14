@@ -31,13 +31,8 @@ namespace nhom1dotnet.Pages.Booking
         //khi nhấm lưu
         public async Task<IActionResult> OnPostAsync()
         {   
-            //Mỗi khi POST lên, bộ nhớ reset sạch 
-            // — Customers và Rooms trở về rỗng. 
-            // Load lại ngay đầu để phòng trường hợp dữ liệu lỗi phải return Page() 
-            // — lúc đó form cần có data để render lại dropdown, nếu không dropdown sẽ trống.
             await LoadSelectListsAsync();
 
-            //AnyAsync chỉ kiểm tra có tồn tại không, trả về true/false — nhanh hơn load cả object.
             var customerExists = await _context.Customers
                 .AnyAsync(c => c.id == Booking.customer_id);
 
@@ -60,15 +55,14 @@ namespace nhom1dotnet.Pages.Booking
 
             //tính tiền luôn trước khi lưu
             var nights = (Booking.check_out - Booking.check_in).Days;
-            Booking.total_amount = nights * (room.RoomType?.price ?? 0);//? tránh crash nếu null -null thì trả về ?? 0 
+            Booking.total_amount = nights * (room.RoomType?.price ?? 0);//toán tử truy cập có điều kiện null
 
             //mặc định chờ xác nhận sau khi tạo
             Booking.status = "Chờ xác nhận";
             Booking.created_at = DateTime.Now;//tg hiện tại
 
             _context.Bookings.Add(Booking);//lưu vào context 
-            // ── thêm 2 dòng này ──
-            room.status = "booked";
+
             _context.Rooms.Update(room);
             await _context.SaveChangesAsync();//insert lưu vào db 
 

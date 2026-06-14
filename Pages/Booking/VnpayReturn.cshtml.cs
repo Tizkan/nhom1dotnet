@@ -40,6 +40,7 @@ namespace nhom1dotnet.Pages.Booking
                 IsSuccess = false;
                 Message = "Thanh toán thất bại. Mã lỗi: " + responseCode;
             }
+
         }
     }
 }

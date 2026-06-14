@@ -42,10 +42,6 @@ public class VnPayService
 
         var secureHash = HmacSHA512(hashSecret, hashData); 
 
-        Console.WriteLine("HASH_SECRET: " + hashSecret);
-        Console.WriteLine("HASH_DATA: " + hashData);
-        Console.WriteLine("SECURE_HASH: " + secureHash);
-
         return baseUrl + "?" + query + "&vnp_SecureHash=" + secureHash;
     }
 

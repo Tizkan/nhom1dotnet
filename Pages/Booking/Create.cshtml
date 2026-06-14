@@ -50,20 +50,6 @@
         <input asp-for="Booking.check_out" type="date" />
     </div>
 
-    <div class="form-group">
-        <label>Tổng tiền</label>
-        <div class="readonly-field">
-            @if (Model.Booking.total_amount.HasValue)
-            {
-                @(Model.Booking.total_amount.Value.ToString("N0") + " ₫")
-            }
-            else
-            {
-                <span>Chưa tính</span>
-            }
-        </div>
-    </div>
-
     <div class="form-actions">
         <button type="submit" class="btn-save">
             <i class="fa-solid fa-check"></i> Lưu
