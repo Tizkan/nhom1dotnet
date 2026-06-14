@@ -62,9 +62,9 @@ namespace nhom1dotnet.Pages_Customers
                         Email        = customer.email,
                         Address      = customer.address,
                         CitizenId    = customer.citizen_id,
-                        BookingCount = bookings.Count,
+                        BookingCount = paidBookings.Count,
                         TotalSpent   = paidBookings.Sum(b => (decimal?)b.total_amount) ?? 0,
-                        LastBooking  = bookings.Max(b => (DateTime?)b.check_out)
+                        LastBooking  = paidBookings.Max(b => (DateTime?)b.check_out)
                     };
                 })
                 .OrderByDescending(c => c.BookingCount)
