@@ -21,12 +21,11 @@ namespace nhom1dotnet.Pages.Booking
 
         public async Task OnGetAsync()
         {
-            
-            Bookings = await _context.Bookings
-                .Include(b => b.Customer) 
-                .Include(b => b.Room)   
-                .ToListAsync();
 
+            Bookings = await _context.Bookings
+                .Include(b => b.Customer)
+                .Include(b => b.Room)
+                .ToListAsync();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(int id)
@@ -43,7 +42,7 @@ namespace nhom1dotnet.Pages.Booking
         }
 
         public IActionResult OnPostPay(int id)
-        {   
+        {
             var booking = _context.Bookings.FirstOrDefault(x => x.id == id);
 
             if (booking == null)
