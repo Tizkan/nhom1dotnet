@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: hotelmanager
+-- Host: localhost    Database: hotelmanager
 -- ------------------------------------------------------
 -- Server version	9.7.0
 
@@ -21,7 +21,8 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '712b8e60-5340-11f1-84e7-f426791b2ad2:1-182';
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '712b8e60-5340-11f1-84e7-f426791b2ad2:1-23,
+b92ba6a0-533c-11f1-9630-08bfb8693754:1-403';
 
 --
 -- Table structure for table `booking_services`
@@ -133,7 +134,7 @@ CREATE TABLE `payments` (
   PRIMARY KEY (`id`),
   KEY `booking_id` (`booking_id`),
   CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -142,7 +143,7 @@ CREATE TABLE `payments` (
 
 LOCK TABLES `payments` WRITE;
 /*!40000 ALTER TABLE `payments` DISABLE KEYS */;
-INSERT INTO `payments` VALUES (1,1,'2026-05-19 12:40:40',1000000.00,'cash','paid'),(2,2,'2026-06-19 12:40:40',3200000.00,'momo','paid');
+INSERT INTO `payments` VALUES (1,1,'2026-05-19 12:40:40',1000000.00,'cash','paid'),(2,2,'2026-06-19 12:40:40',3200000.00,'momo','paid'),(3,7,'2026-06-30 12:40:40',24000000.00,'cash','paid');
 /*!40000 ALTER TABLE `payments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -297,4 +298,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-14 19:39:30
+-- Dump completed on 2026-06-14 21:47:55
