@@ -6,27 +6,59 @@ Chức năng chính: đăng nhập quản trị, quản lý phòng và loại ph
 
 ## Công nghệ
 
-ASP.NET Core Razor Pages trên .NET 10, Entity Framework Core với Pomelo.EntityFrameworkCore.MySql 9.0.0, MySQL 8 trở lên, session để lưu trạng thái đăng nhập, VNPAY sandbox cho thanh toán.
+- ASP.NET Core Razor Pages, .NET 10
+- Entity Framework Core với Pomelo.EntityFrameworkCore.MySql 9.0.0
+- MySQL 8 trở lên
+- Session để lưu trạng thái đăng nhập
+- VNPAY sandbox cho thanh toán
 
-## Yêu cầu cài đặt trước
-
-1. .NET SDK 10. Kiểm tra bằng lệnh `dotnet --version`, kết quả phải bắt đầu bằng `10.`
-2. MySQL Server 8 trở lên, chạy ở cổng 3306.
-3. Git.
-4. ngrok, chỉ cần khi muốn thử thanh toán VNPAY (xem bước 6).
-
-## Chạy dự án
-
-### Bước 1. Lấy mã nguồn
+## Chạy nhanh (đã cài đủ công cụ)
 
 ```bash
 git clone https://github.com/Tizkan/nhom1dotnet.git
 cd nhom1dotnet
+mysql -u root -p -e "CREATE DATABASE hotelmanager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p hotelmanager < Database/hotelmanager.sql
+dotnet run --launch-profile https
 ```
 
-### Bước 2. Tạo cơ sở dữ liệu
+Sau đó mở `https://localhost:7100` và đăng nhập bằng `admin@gmail.com` / `123456`. Nếu mật khẩu MySQL của bạn không phải `123456`, sửa `appsettings.json` trước khi chạy (xem Bước 4).
 
-File `Database/hotelmanager.sql` chứa cấu trúc bảng và dữ liệu mẫu nhưng không có lệnh tạo database, nên phải tạo database trước rồi mới nạp file.
+## Cài đặt từ đầu
+
+### Bước 1. Cài công cụ
+
+| Công cụ | Ghi chú |
+|---|---|
+| .NET SDK 10 | Tải ở https://dotnet.microsoft.com/download. Phải là **SDK**, không phải Runtime. |
+| MySQL Server 8 trở lên | Chạy ở cổng 3306. Cài kèm MySQL Workbench cho dễ thao tác. Nhớ mật khẩu `root` bạn đặt lúc cài. |
+| Git | https://git-scm.com |
+| Visual Studio Code | Cài extension **C# Dev Kit** (Microsoft). |
+| ngrok | Chỉ cần khi thử thanh toán VNPAY (xem Bước 8). |
+
+Kiểm tra sau khi cài, mở terminal **mới**:
+
+```bash
+dotnet --version     # phải bắt đầu bằng 10.
+mysql --version
+git --version
+```
+
+Nếu `mysql` báo `not recognized`, thêm thư mục `bin` của MySQL (ví dụ `C:\Program Files\MySQL\MySQL Server 8.0\bin`) vào biến môi trường PATH, hoặc chạy lệnh từ chính thư mục đó.
+
+### Bước 2. Lấy mã nguồn
+
+```bash
+git clone https://github.com/Tizkan/nhom1dotnet.git
+cd nhom1dotnet
+code .
+```
+
+Mở đúng thư mục chứa file `nhom1dotnet.sln` và `nhom1dotnet.csproj`, nếu không C# Dev Kit sẽ không nhận project. Nếu VS Code hỏi *"Required assets to build and debug are missing"*, bấm **Yes**.
+
+### Bước 3. Tạo cơ sở dữ liệu
+
+File `Database/hotelmanager.sql` chứa cấu trúc bảng và dữ liệu mẫu nhưng **không có lệnh tạo database**, nên phải tạo database trước rồi mới nạp file.
 
 ```bash
 mysql -u root -p -e "CREATE DATABASE hotelmanager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
@@ -39,11 +71,18 @@ Trên PowerShell, toán tử `<` không dùng được. Dùng lệnh này thay t
 Get-Content Database/hotelmanager.sql -Encoding UTF8 | mysql -u root -p hotelmanager
 ```
 
-Nếu dùng MySQL Workbench: tạo schema `hotelmanager`, chọn Server > Data Import > Import from Self-Contained File, trỏ đến `Database/hotelmanager.sql`, chọn Default Target Schema là `hotelmanager`, bấm Start Import.
+Nếu dùng MySQL Workbench: tạo schema `hotelmanager`, chọn **Server > Data Import > Import from Self-Contained File**, trỏ đến `Database/hotelmanager.sql`, chọn Default Target Schema là `hotelmanager`, bấm **Start Import**.
 
-Sau khi nạp xong, database có 9 bảng: `booking_services`, `bookings`, `customers`, `payments`, `room_types`, `rooms`, `services`, `staffs` và `users`.
+Kiểm tra lại:
 
-### Bước 3. Sửa chuỗi kết nối
+```sql
+USE hotelmanager;
+SHOW TABLES;
+```
+
+Kết quả phải có 9 bảng: `booking_services`, `bookings`, `customers`, `payments`, `room_types`, `rooms`, `services`, `staffs` và `users`.
+
+### Bước 4. Sửa chuỗi kết nối
 
 Mở `appsettings.json` và đổi `user`, `password` cho khớp MySQL trên máy bạn:
 
@@ -53,9 +92,16 @@ Mở `appsettings.json` và đổi `user`, `password` cho khớp MySQL trên má
 }
 ```
 
-Mật khẩu mặc định trong repo là `123456`. Nếu MySQL của bạn đặt mật khẩu khác thì bắt buộc phải sửa, nếu không ứng dụng báo lỗi `Access denied` ngay lần truy vấn đầu tiên.
+Mật khẩu mặc định trong repo là `123456`. Nếu MySQL của bạn đặt mật khẩu khác thì bắt buộc phải sửa, nếu không ứng dụng báo `Access denied` ngay lần truy vấn đầu tiên. Nếu mật khẩu có ký tự `;`, bọc trong dấu nháy đơn: `password='abc;123'`.
 
-### Bước 4. Khôi phục package và chạy
+Muốn đổi mật khẩu MySQL thành `123456` cho khớp sẵn với file này, đăng nhập MySQL rồi chạy:
+
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED BY '123456';
+FLUSH PRIVILEGES;
+```
+
+### Bước 5. Khôi phục package và chạy
 
 ```bash
 dotnet restore
@@ -68,13 +114,15 @@ Khi console hiện dòng `Now listening on: https://localhost:7100`, mở trình
 dotnet run --launch-profile http
 ```
 
+Muốn tự build lại khi sửa code, dùng `dotnet watch run --launch-profile https`. Trong VS Code, nhấn **F5** cũng chạy được và cho phép đặt breakpoint.
+
 Lần đầu chạy bằng HTTPS, trình duyệt có thể cảnh báo chứng chỉ. Chạy lệnh sau một lần để tin cậy chứng chỉ dev:
 
 ```bash
 dotnet dev-certs https --trust
 ```
 
-### Bước 5. Đăng nhập
+### Bước 6. Đăng nhập
 
 Tài khoản mẫu có sẵn trong file SQL:
 
@@ -85,19 +133,24 @@ Mật khẩu: 123456
 
 Nhập email vào ô tài khoản. Đăng nhập đúng thì hệ thống chuyển sang trang tổng quan.
 
-### Bước 6. Thử thanh toán VNPAY (không bắt buộc)
+### Bước 7. Dừng ứng dụng
+
+Nhấn `Ctrl+C` trong terminal đang chạy.
+
+### Bước 8. Thử thanh toán VNPAY (không bắt buộc)
 
 VNPAY gọi ngược về ứng dụng sau khi thanh toán, nên `ReturnUrl` phải là địa chỉ mà internet truy cập được. Localhost không dùng được, vì vậy cần ngrok.
 
-1. Chạy ứng dụng ở profile `http` (cổng 5153).
-2. Mở terminal khác và chạy:
+1. Tạo tài khoản ngrok, lấy authtoken và đăng ký một lần: `ngrok config add-authtoken TOKEN_CUA_BAN`.
+2. Chạy ứng dụng ở profile `http` (cổng 5153).
+3. Mở terminal khác và chạy:
 
    ```bash
    ngrok http 5153
    ```
 
-3. Copy địa chỉ `https://....ngrok-free.dev` mà ngrok in ra.
-4. Sửa mục `Vnpay` trong `appsettings.json`:
+4. Copy địa chỉ `https://....ngrok-free.dev` mà ngrok in ra.
+5. Sửa mục `Vnpay` trong `appsettings.json`:
 
    ```json
    "Vnpay": {
@@ -108,9 +161,11 @@ VNPAY gọi ngược về ứng dụng sau khi thanh toán, nên `ReturnUrl` ph�
    }
    ```
 
-5. Chạy lại `dotnet run --launch-profile http`, vào Booking, tạo đặt phòng và bấm thanh toán. Trang VNPAY sandbox mở ra, dùng thẻ test trong tài liệu sandbox của VNPAY để hoàn tất.
+   `TmnCode` và `HashSecret` lấy từ email đăng ký tài khoản sandbox của VNPAY. Không đưa khóa thật lên GitHub.
 
-Địa chỉ ngrok bản miễn phí đổi sau mỗi lần chạy lại ngrok, nên bước 4 phải làm lại mỗi lần.
+6. Chạy lại `dotnet run --launch-profile http`, vào Booking, tạo đặt phòng và bấm thanh toán. Trang VNPAY sandbox mở ra, dùng thẻ test trong tài liệu sandbox của VNPAY để hoàn tất.
+
+Địa chỉ ngrok bản miễn phí đổi sau mỗi lần chạy lại ngrok, nên bước 5 phải làm lại mỗi lần.
 
 ## Cấu trúc thư mục
 
@@ -137,23 +192,23 @@ nhom1dotnet/
 
 ## Lỗi thường gặp
 
-`Unable to connect to any of the specified MySQL hosts`: MySQL chưa chạy hoặc sai cổng. Kiểm tra dịch vụ MySQL đang chạy và cổng trong chuỗi kết nối.
-
-`Unknown database 'hotelmanager'`: chưa làm bước 2. Tạo database rồi nạp lại file SQL.
-
-`Access denied for user 'root'`: mật khẩu trong `appsettings.json` khác mật khẩu MySQL thật. Sửa lại ở bước 3.
-
-`dotnet restore` lỗi không tải được package: xóa cache NuGet rồi khôi phục lại.
+| Lỗi | Nguyên nhân và cách xử lý |
+|---|---|
+| `Unable to connect to any of the specified MySQL hosts` | MySQL chưa chạy hoặc sai cổng. Mở `services.msc`, bật dịch vụ MySQL (thường tên `MySQL80`), kiểm tra cổng trong chuỗi kết nối. |
+| `Unknown database 'hotelmanager'` | Chưa làm Bước 3. Tạo database rồi nạp lại file SQL. |
+| `Access denied for user 'root'` | Mật khẩu trong `appsettings.json` khác mật khẩu MySQL thật. Sửa lại ở Bước 4. |
+| `Table 'hotelmanager.xxx' doesn't exist` | Đã tạo database nhưng chưa nạp `hotelmanager.sql`. |
+| `A compatible .NET SDK was not found` | Máy chưa cài .NET 10. Cài SDK 10 rồi kiểm tra lại bằng `dotnet --version`. |
+| `dotnet` không nhận lệnh | Vừa cài xong chưa mở terminal mới. Tắt hẳn VS Code, mở lại. |
+| `dotnet restore` không tải được package | Xóa cache NuGet rồi khôi phục lại (lệnh bên dưới). |
+| Cảnh báo chứng chỉ HTTPS | Chạy `dotnet dev-certs https --trust`. |
+| Thanh toán VNPAY xong nhưng không quay về được ứng dụng | `ReturnUrl` đang trỏ đến địa chỉ ngrok cũ. Làm lại Bước 8. |
 
 ```bash
 dotnet nuget locals all --clear
 dotnet restore
 ```
 
-`A compatible .NET SDK was not found`: máy chưa cài .NET 10. Tải SDK 10 từ dotnet.microsoft.com rồi kiểm tra lại bằng `dotnet --version`.
-
-Thanh toán VNPAY xong nhưng không quay về được ứng dụng: `ReturnUrl` đang trỏ đến địa chỉ ngrok cũ. Làm lại bước 6.
-
 ## Nhóm thực hiện
 
-Nhóm 1. Mã nguồn: https://github.com/Tizkan/nhom1dotnet****
+Nhóm 1. Mã nguồn: https://github.com/Tizkan/nhom1dotnet
