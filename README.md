@@ -19,10 +19,10 @@ git clone https://github.com/Tizkan/nhom1dotnet.git
 cd nhom1dotnet
 mysql -u root -p -e "CREATE DATABASE hotelmanager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -u root -p hotelmanager < Database/hotelmanager.sql
-dotnet run --launch-profile https
+./run.ps1 (chạy trên Powershell)
 ```
 
-Sau đó mở `https://localhost:7100` và đăng nhập bằng `admin@gmail.com` / `123456`. Nếu mật khẩu MySQL của bạn không phải `123456`, sửa `appsettings.json` trước khi chạy (xem Bước 4).
+Sau đó đăng nhập bằng `admin@gmail.com` / `123456`. Nếu mật khẩu MySQL của bạn không phải `123456`, sửa `appsettings.json` trước khi chạy (xem Bước 4).
 
 ## Cài đặt từ đầu
 
