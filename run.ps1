@@ -18,4 +18,4 @@ $env:Vnpay__ReturnUrl = "$url/Booking/VnpayReturn"
 
 Start-Job { Start-Sleep -Seconds 8; Start-Process $using:url } | Out-Null
 
-dotnet run --launch-profile httppowershell -ExecutionPolicy Bypass -File .\run.ps1
+dotnet watch run --launch-profile http
