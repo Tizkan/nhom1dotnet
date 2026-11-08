@@ -139,18 +139,26 @@ Nhấn `Ctrl+C` trong terminal đang chạy.
 
 ### Bước 8. Thử thanh toán VNPAY (không bắt buộc)
 
-VNPAY gọi ngược về ứng dụng sau khi thanh toán, nên `ReturnUrl` phải là địa chỉ mà internet truy cập được. Localhost không dùng được, vì vậy cần ngrok.
+Sau khi thanh toán xong, VNPAY chuyển **trình duyệt của người thanh toán** về `ReturnUrl`. Cần ngrok vì hai lý do: form đăng ký merchant sandbox của VNPAY không nhận `localhost` ở ô địa chỉ website (báo "Không đúng định dạng Url"), và người thanh toán dùng thiết bị khác (ví dụ điện thoại) không truy cập được localhost của máy chạy ứng dụng.
 
-1. Tạo tài khoản ngrok, lấy authtoken và đăng ký một lần: `ngrok config add-authtoken TOKEN_CUA_BAN`.
-2. Chạy ứng dụng ở profile `http` (cổng 5153).
-3. Mở terminal khác và chạy:
+**Lưu ý quan trọng:** `TmnCode` và `HashSecret` gắn với website đã đăng ký khi tạo tài khoản sandbox. Nếu bạn dùng `TmnCode` trong repo mà địa chỉ website không khớp với địa chỉ đã đăng ký cho mã đó, VNPAY báo **"Website này chưa được phê duyệt"** (`Error.html?code=71`). Hãy dùng đúng cặp `TmnCode`/`HashSecret` của tài khoản mà nhóm đã đăng ký, hoặc đăng ký tài khoản mới theo các bước dưới.
+
+1. **Cài ngrok.** Tìm **ngrok** trong Microsoft Store rồi cài, hoặc tải ở https://download.ngrok.com. Kiểm tra bằng `ngrok version` trong terminal mới.
+2. **Kết nối tài khoản ngrok.** Đăng ký ở https://dashboard.ngrok.com, lấy token ở trang **Your Authtoken**, rồi chạy một lần:
+
+   ```bash
+   ngrok config add-authtoken TOKEN_CUA_BAN
+   ```
+
+3. **Lấy địa chỉ công khai.** Chạy ứng dụng ở profile `http` (cổng 5153), mở terminal khác và chạy:
 
    ```bash
    ngrok http 5153
    ```
 
-4. Copy địa chỉ `https://....ngrok-free.dev` mà ngrok in ra.
-5. Sửa mục `Vnpay` trong `appsettings.json`:
+   Copy địa chỉ ở dòng `Forwarding`, dạng `https://....ngrok-free.dev`. Vào mục **Domains** trong dashboard ngrok xem tài khoản có domain cố định không, vì địa chỉ ngẫu nhiên có thể đổi sau mỗi lần chạy lại ngrok.
+4. **Đăng ký merchant sandbox** (chỉ khi nhóm chưa có tài khoản) tại https://sandbox.vnpayment.vn/devreg. Ô **Địa chỉ Website** điền địa chỉ ngrok ở bước 3. Mỗi email và mỗi website chỉ đăng ký được một lần: nếu form báo **"Email hoặc website đã được đăng ký"**, tức là đã có tài khoản, hãy tìm email VNPAY gửi lúc đăng ký trước đó thay vì đăng ký lại. Email này chứa `TmnCode` và `HashSecret`.
+5. **Sửa mục `Vnpay` trong `appsettings.json`:**
 
    ```json
    "Vnpay": {
@@ -161,11 +169,17 @@ VNPAY gọi ngược về ứng dụng sau khi thanh toán, nên `ReturnUrl` ph�
    }
    ```
 
-   `TmnCode` và `HashSecret` lấy từ email đăng ký tài khoản sandbox của VNPAY. Không đưa khóa thật lên GitHub.
+   Địa chỉ trong `ReturnUrl` phải **trùng domain** với địa chỉ website đã đăng ký ở bước 4. Sau khi sửa file, **dừng (`Ctrl+C`) và chạy lại** `dotnet run --launch-profile http`, vì ứng dụng chỉ đọc `appsettings.json` lúc khởi động.
+6. **Kiểm tra ứng dụng đang gửi đúng thông tin.** Vào Booking, tick một đơn "Chờ xác nhận" và bấm **Thanh toán**. Terminal đang chạy `dotnet run` in dòng bắt đầu bằng `VNPAY URL:`. Trong URL đó, `vnp_TmnCode` phải là mã của bạn và `vnp_ReturnUrl` (đang bị mã hóa, `https%3A%2F%2F...`) phải là địa chỉ ngrok bạn đã đăng ký.
+7. **Thanh toán thử.** Trang "Chọn phương thức thanh toán" của VNPAY sandbox mở ra. Chọn **Thẻ nội địa và tài khoản ngân hàng**, chọn ngân hàng NCB, rồi dùng thẻ test trong tài liệu sandbox của VNPAY. Thành công thì trình duyệt quay về trang `VnpayReturn` và đơn đổi sang **Đã xác nhận**.
 
-6. Chạy lại `dotnet run --launch-profile http`, vào Booking, tạo đặt phòng và bấm thanh toán. Trang VNPAY sandbox mở ra, dùng thẻ test trong tài liệu sandbox của VNPAY để hoàn tất.
+**Bảo mật:** repo này công khai. Không commit `HashSecret` thật lên GitHub. Cách gọn là dùng user-secrets (chỉ có hiệu lực khi chạy ở môi trường Development, giá trị nằm ngoài repo và ghi đè `appsettings.json` trên máy bạn):
 
-Địa chỉ ngrok bản miễn phí đổi sau mỗi lần chạy lại ngrok, nên bước 5 phải làm lại mỗi lần.
+```bash
+dotnet user-secrets init
+dotnet user-secrets set "Vnpay:TmnCode" "TMN_CODE_CUA_BAN"
+dotnet user-secrets set "Vnpay:HashSecret" "HASH_SECRET_CUA_BAN"
+```
 
 ## Cấu trúc thư mục
 
@@ -203,6 +217,10 @@ nhom1dotnet/
 | `dotnet restore` không tải được package | Xóa cache NuGet rồi khôi phục lại (lệnh bên dưới). |
 | Cảnh báo chứng chỉ HTTPS | Chạy `dotnet dev-certs https --trust`. |
 | Thanh toán VNPAY xong nhưng không quay về được ứng dụng | `ReturnUrl` đang trỏ đến địa chỉ ngrok cũ. Làm lại Bước 8. |
+| VNPAY báo **Website này chưa được phê duyệt** (`code=71`) | `TmnCode` đang gửi đi không khớp website đã đăng ký, hoặc ứng dụng vẫn đang gửi mã cũ. Xem dòng `VNPAY URL:` trong terminal, đối chiếu `vnp_TmnCode` và `vnp_ReturnUrl`. Sửa `appsettings.json` rồi chạy lại `dotnet run` (Bước 8). |
+| Form đăng ký VNPAY báo **Không đúng định dạng Url** | Ô địa chỉ website không nhận `localhost`. Điền địa chỉ ngrok (`https://....ngrok-free.dev`). |
+| Form đăng ký VNPAY báo **Email hoặc website đã được đăng ký** | Đã có tài khoản với email hoặc website này. Tìm email VNPAY cũ để lấy `TmnCode` và `HashSecret`, không đăng ký lại. |
+| `ngrok` không nhận lệnh | Vừa cài xong chưa mở terminal mới. Đóng hết terminal và VS Code, mở lại rồi chạy `ngrok version`. |
 
 ```bash
 dotnet nuget locals all --clear
